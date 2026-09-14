@@ -1,0 +1,8 @@
+import {useState} from 'react';
+import {useSearchParams,Link} from 'react-router-dom';
+import {useStore} from '../../hooks/useStore';
+import {filterProperties} from '../../utils/search';
+import PropertyMap from '../../components/map/PropertyMap';
+import PropertyCard from '../../components/property/PropertyCard';
+import {EmptyState} from '../../components/common/UI';
+export default function MapPage(){const [params,setParams]=useSearchParams();const [view,setView]=useState('map');const {properties}=useStore();const result=filterProperties(properties,Object.fromEntries(params));return <div className="map-page"><div className="container"><div className="section-heading page-heading"><div><h1>Find your neighbourhood</h1><p>{result.length} places across Sri Lanka</p></div><Link className="btn secondary" to={'/properties?'+params}>All filters</Link></div><div className="map-search"><input aria-label="Search locations on map" placeholder="Search a city, university or property…" value={params.get('q')||''} onChange={e=>{const next=new URLSearchParams(params);next.set('q',e.target.value);setParams(next,{replace:true});}}/><div className="map-switch"><button className={'btn '+(view==='list'?'':'secondary')} onClick={()=>setView('list')}>List</button><button className={'btn '+(view==='map'?'':'secondary')} onClick={()=>setView('map')}>Map</button></div></div><div className={'map-layout show-'+view}><div className="map-results">{result.map(p=><PropertyCard key={p.id} property={p}/>)}{!result.length&&<EmptyState title="No matching places"/>}</div><div className="map-canvas"><PropertyMap properties={result}/></div></div></div></div>;}
