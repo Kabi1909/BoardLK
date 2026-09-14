@@ -1,0 +1,7 @@
+export const cities = {
+Ampara:['Ampara','Kalmunai'], Anuradhapura:['Anuradhapura','Kekirawa'], Badulla:['Badulla','Bandarawela'], Batticaloa:['Batticaloa','Kattankudy'], Colombo:['Colombo','Nugegoda','Maharagama','Dehiwala','Moratuwa'], Galle:['Galle','Hikkaduwa'], Gampaha:['Gampaha','Negombo','Kelaniya'], Hambantota:['Hambantota','Tangalle'], Jaffna:['Jaffna','Nallur'], Kalutara:['Kalutara','Panadura'], Kandy:['Kandy','Peradeniya'], Kegalle:['Kegalle','Mawanella'], Kilinochchi:['Kilinochchi','Pallai'], Kurunegala:['Kurunegala','Kuliyapitiya'], Mannar:['Mannar','Talaimannar'], Matale:['Matale','Dambulla'], Matara:['Matara','Weligama'], Monaragala:['Monaragala','Wellawaya'], Mullaitivu:['Mullaitivu','Puthukkudiyiruppu'], 'Nuwara Eliya':['Nuwara Eliya','Hatton'], Polonnaruwa:['Polonnaruwa','Kaduruwela'], Puttalam:['Puttalam','Chilaw'], Ratnapura:['Ratnapura','Balangoda'], Trincomalee:['Trincomalee','Kinniya'], Vavuniya:['Vavuniya','Cheddikulam'] };
+export const districts = Object.keys(cities).sort();
+export const propertyTypes=['Boarding House','Room','Annex','Apartment','Hostel','Shared House'];
+export const roomTypes=['Single','Shared','Double','Triple','Dormitory'];
+export const facilities=['Wi-Fi','Attached Bathroom','Shared Bathroom','Fan','Air Conditioning','Furnished','Bed','Study Table','Kitchen','Washing Machine','Parking','CCTV','Security','Drinking Water','Hot Water','Electricity Included','Water Included','Meals Available'];
+export const genders=['Any','Male Only','Female Only'];
