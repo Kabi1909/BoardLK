@@ -1,8 +1,131 @@
-import {NavLink,Link,useNavigate} from 'react-router-dom';
-import {LayoutDashboard,Heart,CalendarDays,MessageSquare,User,Bell,House,Star,LogOut,ArrowUpRight,Menu,X,Search} from 'lucide-react';
-import {useAuth} from '../../context/AuthContext';
-import {Logo,NotificationDropdown} from '../common/Navigation';
-import {Avatar} from '../common/UI';
-export function DashboardSidebar({open,onClose}){const {user,logout}=useAuth();const navigate=useNavigate();const links=[['dashboard','Overview',LayoutDashboard],...(user.role==='renter'?[['favorites','Saved properties',Heart]]:[['properties','My properties',House]]),['bookings',user.role==='owner'?'Booking requests':'My bookings',CalendarDays],['messages','Messages',MessageSquare],...(user.role==='owner'?[['reviews','Reviews',Star]]:[]),['notifications','Notifications',Bell],['profile','My profile',User]];return <><div className={'dashboard-scrim '+(open?'visible':'')} onClick={onClose}/><aside className={'dashboard-sidebar '+(open?'open':'')}><div className="section-heading"><Logo/><button className="icon-button mobile-toggle" onClick={onClose} aria-label="Close sidebar"><X size={18}/></button></div><span className="sidebar-caption">{user.role==='owner'?'OWNER WORKSPACE':'YOUR PERSONAL SPACE'}</span><nav>{links.map(([path,label,Icon])=><NavLink key={path} to={'/'+user.role+'/'+path} onClick={onClose}><Icon size={18}/>{label}</NavLink>)}</nav><div className="sidebar-promo"><House size={26}/><h3>{user.role==='owner'?'A home for someone new.':'Your next place is waiting.'}</h3><p>{user.role==='owner'?'Share your space with the right people.':'Discover a place that fits your everyday.'}</p><Link to={user.role==='owner'?'/owner/properties/new':'/properties'} onClick={onClose}>{user.role==='owner'?'Add a property':'Explore properties'} <ArrowUpRight size={14}/></Link></div><div className="sidebar-user"><Avatar user={user}/><div><strong>{user.name}</strong><small>{user.role==='owner'?'Boarding Owner':'Renter / Student'}</small></div><button aria-label="Logout" onClick={()=>{logout();navigate('/');}}><LogOut size={17}/></button></div></aside></>;}
-export function DashboardTopbar({onMenu}){const {user}=useAuth();return <header className="dashboard-topbar"><button className="icon-button mobile-toggle" aria-label="Open sidebar" onClick={onMenu}><Menu size={19}/></button><span>{user.role==='owner'?'Owner workspace':'Your BoardLK'}</span><div><Link className="text-link" to="/properties"><Search size={15}/>Explore boarding</Link><NotificationDropdown/><Avatar user={user}/></div></header>;}
-export function StatCard({label,value,icon:Icon,detail}){return <div className="stat-card"><div><span>{label}</span><strong>{value}</strong>{detail&&<small>{detail}</small>}</div>{Icon&&<span className="stat-icon"><Icon size={20}/></span>}</div>;}
+import { NavLink, Link, useNavigate } from 'react-router-dom';
+import {
+  LayoutDashboard,
+  Heart,
+  CalendarDays,
+  MessageSquare,
+  User,
+  Bell,
+  House,
+  Star,
+  LogOut,
+  ArrowUpRight,
+  Menu,
+  X,
+  Search,
+} from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
+import { Logo, NotificationDropdown } from '../common/Navigation';
+import { Avatar } from '../common/UI';
+export function DashboardSidebar({ open, onClose }) {
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+  const links = [
+    ['dashboard', 'Overview', LayoutDashboard],
+    ...(user.role === 'renter'
+      ? [['favorites', 'Saved properties', Heart]]
+      : [['properties', 'My properties', House]]),
+    ['bookings', user.role === 'owner' ? 'Booking requests' : 'My bookings', CalendarDays],
+    ['messages', 'Messages', MessageSquare],
+    ...(user.role === 'owner' ? [['reviews', 'Reviews', Star]] : []),
+    ['notifications', 'Notifications', Bell],
+    ['profile', 'My profile', User],
+  ];
+  return (
+    <>
+      <div className={'dashboard-scrim ' + (open ? 'visible' : '')} onClick={onClose} />
+      <aside className={'dashboard-sidebar ' + (open ? 'open' : '')}>
+        <div className="section-heading">
+          <Logo />
+          <button
+            className="icon-button mobile-toggle"
+            onClick={onClose}
+            aria-label="Close sidebar"
+          >
+            <X size={18} />
+          </button>
+        </div>
+        <span className="sidebar-caption">
+          {user.role === 'owner' ? 'OWNER WORKSPACE' : 'YOUR PERSONAL SPACE'}
+        </span>
+        <nav>
+          {links.map(([path, label, Icon]) => (
+            <NavLink key={path} to={'/' + user.role + '/' + path} onClick={onClose}>
+              <Icon size={18} />
+              {label}
+            </NavLink>
+          ))}
+        </nav>
+        <div className="sidebar-promo">
+          <House size={26} />
+          <h3>
+            {user.role === 'owner' ? 'A home for someone new.' : 'Your next place is waiting.'}
+          </h3>
+          <p>
+            {user.role === 'owner'
+              ? 'Share your space with the right people.'
+              : 'Discover a place that fits your everyday.'}
+          </p>
+          <Link
+            to={user.role === 'owner' ? '/owner/properties/new' : '/properties'}
+            onClick={onClose}
+          >
+            {user.role === 'owner' ? 'Add a property' : 'Explore properties'}{' '}
+            <ArrowUpRight size={14} />
+          </Link>
+        </div>
+        <div className="sidebar-user">
+          <Avatar user={user} />
+          <div>
+            <strong>{user.name}</strong>
+            <small>{user.role === 'owner' ? 'Boarding Owner' : 'Renter / Student'}</small>
+          </div>
+          <button
+            aria-label="Logout"
+            onClick={() => {
+              logout();
+              navigate('/');
+            }}
+          >
+            <LogOut size={17} />
+          </button>
+        </div>
+      </aside>
+    </>
+  );
+}
+export function DashboardTopbar({ onMenu }) {
+  const { user } = useAuth();
+  return (
+    <header className="dashboard-topbar">
+      <button className="icon-button mobile-toggle" aria-label="Open sidebar" onClick={onMenu}>
+        <Menu size={19} />
+      </button>
+      <span>{user.role === 'owner' ? 'Owner workspace' : 'Your BoardLK'}</span>
+      <div>
+        <Link className="text-link" to="/properties">
+          <Search size={15} />
+          Explore boarding
+        </Link>
+        <NotificationDropdown />
+        <Avatar user={user} />
+      </div>
+    </header>
+  );
+}
+export function StatCard({ label, value, icon: Icon, detail }) {
+  return (
+    <div className="stat-card">
+      <div>
+        <span>{label}</span>
+        <strong>{value}</strong>
+        {detail && <small>{detail}</small>}
+      </div>
+      {Icon && (
+        <span className="stat-icon">
+          <Icon size={20} />
+        </span>
+      )}
+    </div>
+  );
+}
