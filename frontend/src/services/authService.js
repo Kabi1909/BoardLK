@@ -1,0 +1,12 @@
+import api,{isMock} from './api';
+import {database,collection} from './store';
+import {uid} from '../utils/format';
+const digest=async password=>Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(password)))).map(b=>b.toString(16).padStart(2,'0')).join('');
+const safe=u=>{const {passwordHash,...user}=u;return user;};
+export const authService={
+async login({email,password}){if(!isMock)return (await api.post('/auth/login',{email,password})).data;await new Promise(r=>setTimeout(r,350));const u=database.get().users.find(x=>x.email.toLowerCase()===email.trim().toLowerCase());if(!u||(u.passwordHash?u.passwordHash!==await digest(password):password!=='BoardLK123'))throw new Error('Email or password is incorrect.');return {user:safe(u),token:'mock-'+uid()};},
+async register(form){if(!isMock)return(await api.post('/auth/register',form)).data;if(!['renter','owner'].includes(form.role))throw new Error('Choose a valid role.');if(database.get().users.some(u=>u.email.toLowerCase()===form.email.trim().toLowerCase()))throw new Error('This email is already registered.');const u={id:uid(),name:form.name.trim(),email:form.email.trim().toLowerCase(),phone:form.phone,role:form.role,joined:new Date().toISOString(),passwordHash:await digest(form.password)};collection('users').add(u);return {user:safe(u),token:'mock-'+uid()};},
+async changePassword(id,current,password){if(!isMock)return api.patch('/auth/password',{current,password});const u=database.get().users.find(u=>u.id===id);if(u.passwordHash?u.passwordHash!==await digest(current):current!=='BoardLK123')throw new Error('Current password is incorrect.');collection('users').update(id,{passwordHash:await digest(password)});},
+async forgot(email){if(!isMock)return(await api.post('/auth/forgot-password',{email})).data;const u=database.get().users.find(u=>u.email.toLowerCase()===email.toLowerCase());if(!u)return null;const token=uid();sessionStorage.setItem('boardlk-reset',JSON.stringify({token,id:u.id,expires:Date.now()+900000}));return token;},
+async reset(token,password){if(!isMock)return api.post('/auth/reset-password',{token,password});const r=JSON.parse(sessionStorage.getItem('boardlk-reset')||'null');if(!r||r.token!==token||r.expires<Date.now())throw new Error('This reset link is invalid or expired. Request another link.');collection('users').update(r.id,{passwordHash:await digest(password)});sessionStorage.removeItem('boardlk-reset');}
+};
