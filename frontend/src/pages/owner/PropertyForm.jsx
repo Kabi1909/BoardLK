@@ -1,3 +1,4 @@
+import SafeImage from '../../components/common/SafeImage.jsx';
 import { useState } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, Check, Upload, Trash2, ImagePlus, Save, Send } from 'lucide-react';
@@ -347,7 +348,7 @@ export default function PropertyForm() {
               <div className="upload-grid">
                 {f.images.map((image, i) => (
                   <div key={i}>
-                    <img src={image} alt={'Property photo ' + (i + 1)} />
+                    <SafeImage src={image} alt={'Property photo ' + (i + 1)} />
                     <button
                       className={'cover-select ' + (i === 0 ? 'active' : '')}
                       onClick={() => set('images', [image, ...f.images.filter((_, j) => j !== i)])}
@@ -373,7 +374,9 @@ export default function PropertyForm() {
           )}
           {step === 7 && (
             <div className="publish-preview">
-              {f.images[0] && <img className="preview-cover" src={f.images[0]} alt={f.title} />}
+              {f.images[0] && (
+                <SafeImage className="preview-cover" src={f.images[0]} alt={f.title} />
+              )}
               <h2>{f.title}</h2>
               <p>
                 {f.address}, {f.city}, {f.district}
@@ -412,7 +415,7 @@ export default function PropertyForm() {
               <p>{f.rules || 'No additional rules'}</p>
               <div className="preview-thumbnails">
                 {f.images.map((img, i) => (
-                  <img key={i} src={img} alt={'Preview photo ' + (i + 1)} />
+                  <SafeImage key={i} src={img} alt={'Preview photo ' + (i + 1)} />
                 ))}
               </div>
               {existing && select('status', 'Listing status', ['Published', 'Disabled', 'Draft'])}

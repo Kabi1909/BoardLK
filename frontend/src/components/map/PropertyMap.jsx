@@ -1,3 +1,4 @@
+import SafeImage from '../common/SafeImage.jsx';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import { useEffect } from 'react';
@@ -39,7 +40,7 @@ export default function PropertyMap({ properties, focus = false }) {
         <Marker key={p.id} position={[Number(p.lat), Number(p.lng)]} icon={marker}>
           <Popup>
             <div className="map-popup">
-              <img src={p.images[0]} alt={p.title} />
+              <SafeImage src={p.images[0]} alt={p.title} />
               <h3>{p.title}</h3>
               <p>
                 {money(p.rent)} / month

@@ -1,3 +1,4 @@
+import SafeImage from '../../components/common/SafeImage.jsx';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Plus, Eye, Pencil, Trash2, Power, BedDouble, MapPin } from 'lucide-react';
@@ -54,7 +55,7 @@ export default function OwnerProperties() {
         {own.map((p) => (
           <article className="owner-property panel" key={p.id}>
             <Link to={'/properties/' + p.id}>
-              <img src={p.images[0]} alt={p.title} />
+              <SafeImage src={p.images[0]} alt={p.title} />
             </Link>
             <div className="owner-property-info">
               <div className="section-heading">

@@ -1,3 +1,4 @@
+import SafeImage from './SafeImage.jsx';
 import { useEffect, useRef, useId, Component } from 'react';
 import { Link } from 'react-router-dom';
 import { X, Search, Star, LoaderCircle, ChevronLeft, ChevronRight, Home } from 'lucide-react';
@@ -57,7 +58,7 @@ export function RatingStars({ rating = 0 }) {
 }
 export function Avatar({ user }) {
   return user?.photo ? (
-    <img className="avatar" src={user.photo} alt={user.name} />
+    <SafeImage className="avatar" src={user.photo} alt={user.name} />
   ) : (
     <span className="avatar">
       {(user?.name || 'BoardLK')

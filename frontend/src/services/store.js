@@ -45,4 +45,3 @@ export const collection = (name) => ({
     })),
   remove: (id) => database.update((s) => ({ ...s, [name]: s[name].filter((x) => x.id !== id) })),
 });
-

@@ -1,3 +1,4 @@
+import SafeImage from '../../components/common/SafeImage.jsx';
 import { Link } from 'react-router-dom';
 import {
   ArrowRight,
@@ -58,7 +59,7 @@ export default function Home() {
             </div>
           </div>
           <div className="hero-visual">
-            <img
+            <SafeImage
               src={photos[0]}
               alt="Bright sunlit apartment with comfortable seating and green plants"
               fetchpriority="high"
@@ -137,7 +138,7 @@ export default function Home() {
             {['Colombo', 'Kandy', 'Vavuniya', 'Jaffna', 'Galle', 'Kurunegala', 'Batticaloa'].map(
               (city, i) => (
                 <Link className="location-card" to={'/properties?q=' + city} key={city}>
-                  <img
+                  <SafeImage
                     src={locationPhotos[i]}
                     alt={city + ' accommodation inspiration'}
                     loading="lazy"
@@ -230,7 +231,7 @@ export default function Home() {
       <section className="section">
         <div className="container why-grid">
           <div className="why-photo">
-            <img
+            <SafeImage
               src={photos[1]}
               alt="A spacious and thoughtfully designed kitchen and living area"
               loading="lazy"
@@ -339,4 +340,3 @@ export default function Home() {
     </>
   );
 }
-

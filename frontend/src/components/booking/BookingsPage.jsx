@@ -1,3 +1,4 @@
+import SafeImage from '../common/SafeImage.jsx';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { MessageCircle, CalendarDays, Users } from 'lucide-react';
@@ -53,7 +54,7 @@ export default function BookingsPage() {
             <article className="booking-row panel" key={b.id}>
               {p && (
                 <Link to={'/properties/' + p.id}>
-                  <img className="booking-thumb" src={p.images[0]} alt={p.title} />
+                  <SafeImage className="booking-thumb" src={p.images[0]} alt={p.title} />
                 </Link>
               )}
               <div className="booking-info">

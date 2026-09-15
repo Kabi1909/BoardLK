@@ -1,3 +1,4 @@
+import SafeImage from '../../components/common/SafeImage.jsx';
 import { Link } from 'react-router-dom';
 import { House, CheckCircle, BedDouble, Clock, Eye, Star, Plus, MessageSquare } from 'lucide-react';
 import {
@@ -149,7 +150,7 @@ export default function OwnerDashboard() {
             .slice(0, 4)
             .map((p) => (
               <Link className="compact-row" to={'/properties/' + p.id} key={p.id}>
-                <img src={p.images[0]} alt={p.title} />
+                <SafeImage src={p.images[0]} alt={p.title} />
                 <div>
                   <strong>{p.title}</strong>
                   <small>{p.city}</small>

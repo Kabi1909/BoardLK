@@ -1,7 +1,9 @@
+import SafeImage from '../common/SafeImage.jsx';
 import { useState } from 'react';
 import { ChevronLeft, ChevronRight, Expand } from 'lucide-react';
 import { Modal } from '../common/UI';
-export default function ImageGallery({ images, title }) {
+export default function ImageGallery({ images: sourceImages, title }) {
+  const images = sourceImages?.length ? sourceImages : ['/property-placeholder.svg'];
   const [index, setIndex] = useState(0);
   const [full, setFull] = useState(false);
   const move = (n) => setIndex((i) => (i + n + images.length) % images.length);
@@ -25,7 +27,7 @@ export default function ImageGallery({ images, title }) {
   return (
     <div className="gallery">
       <div className="gallery-main">
-        <img src={images[index]} alt={title + ' photo ' + (index + 1)} />
+        <SafeImage src={images[index]} alt={title + ' photo ' + (index + 1)} />
         {controls}
         <button
           className="gallery-expand icon-button"
@@ -44,7 +46,7 @@ export default function ImageGallery({ images, title }) {
             className={i === index ? 'selected' : ''}
             onClick={() => setIndex(i)}
           >
-            <img src={src} alt={title + ' thumbnail ' + (i + 1)} />
+            <SafeImage src={src} alt={title + ' thumbnail ' + (i + 1)} />
           </button>
         ))}
       </div>
@@ -55,7 +57,7 @@ export default function ImageGallery({ images, title }) {
           onClose={() => setFull(false)}
         >
           <div className="gallery-full">
-            <img src={images[index]} alt={title + ' full photo ' + (index + 1)} />
+            <SafeImage src={images[index]} alt={title + ' full photo ' + (index + 1)} />
             {controls}
           </div>
         </Modal>

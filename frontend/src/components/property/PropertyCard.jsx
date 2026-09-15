@@ -1,3 +1,4 @@
+import SafeImage from '../common/SafeImage.jsx';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { MapPin, Heart, Wifi, BedDouble, ArrowUpRight, ShieldCheck } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
@@ -31,7 +32,7 @@ export default function PropertyCard({ property }) {
     <article className="property-card card">
       <div className="property-cover">
         <Link to={'/properties/' + p.id}>
-          <img src={p.images[0]} alt={p.title} loading="lazy" />
+          <SafeImage src={p.images[0]} alt={p.title} loading="lazy" />
         </Link>
         <StatusBadge
           status={
