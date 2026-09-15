@@ -37,7 +37,7 @@ export function StatusBadge({ status }) {
     <span
       className={
         'badge ' +
-        (status === 'Rejected' || status === 'Fully Occupied'
+        (status === 'Rejected' || status === 'Fully Occupied' || status === 'Disabled'
           ? 'red'
           : status === 'Pending' || status === 'Limited Availability' || status === 'Draft'
             ? 'amber'
@@ -50,7 +50,7 @@ export function StatusBadge({ status }) {
 }
 export function RatingStars({ rating = 0 }) {
   return (
-    <span className="rating" aria-label={rating + ' out of 5 stars'}>
+    <span className="rating" aria-label={Number(rating).toFixed(1) + ' out of 5 stars'}>
       <Star size={14} fill="currentColor" />
       <strong>{Number(rating).toFixed(1)}</strong>
     </span>
