@@ -129,3 +129,4 @@ export function StatCard({ label, value, icon: Icon, detail }) {
     </div>
   );
 }
+
