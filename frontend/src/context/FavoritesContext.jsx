@@ -1,26 +1,26 @@
 import { createContext, useContext } from 'react';
 import { useAuth } from './AuthContext';
 import { useStore } from '../hooks/useStore';
-import { database } from '../services/store';
-const Context = createContext();
+import { favoriteService } from '../services/favoriteService';
+
+const FavoritesContext = createContext();
+
 export function FavoritesProvider({ children }) {
   const { user } = useAuth();
-  const s = useStore();
-  const ids = s.favorites[user?.id] || [];
-  const toggle = (id) => {
-    if (!user) return;
-    database.update((s) => ({
-      ...s,
-      favorites: {
-        ...s.favorites,
-        [user.id]: ids.includes(id) ? ids.filter((x) => x !== id) : [...ids, id],
-      },
-    }));
-  };
+  const state = useStore();
+  const ids = state.favorites[user?.id] || [];
+
+  async function toggle(propertyId) {
+    if (user?.role !== 'renter') return;
+    if (ids.includes(propertyId)) await favoriteService.remove(propertyId, user.id);
+    else await favoriteService.create({ userId: user.id, propertyId });
+  }
+
   return (
-    <Context.Provider value={{ ids, toggle, isFavorite: (id) => ids.includes(id) }}>
+    <FavoritesContext.Provider value={{ ids, toggle, isFavorite: (id) => ids.includes(id) }}>
       {children}
-    </Context.Provider>
+    </FavoritesContext.Provider>
   );
 }
-export const useFavorites = () => useContext(Context);
+
+export const useFavorites = () => useContext(FavoritesContext);
