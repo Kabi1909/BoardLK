@@ -3,8 +3,8 @@ import { Link } from 'react-router-dom';
 import { Plus, Eye, Pencil, Trash2, Power, BedDouble, MapPin } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useStore } from '../../hooks/useStore';
-import { database, collection } from '../../services/store';
-import { money, uid } from '../../utils/format';
+import { manageListing } from '../../services/listingActions';
+import { money } from '../../utils/format';
 import { StatusBadge, ConfirmDialog, EmptyState } from '../../components/common/UI';
 export default function OwnerProperties() {
   const { user } = useAuth();
@@ -15,50 +15,13 @@ export default function OwnerProperties() {
   const own = s.properties.filter(
     (p) => p.ownerId === user.id && (filter === 'All' || p.status === filter),
   );
-  function action(p, type) {
+  function action(property, type) {
     setError('');
     try {
-      if (type === 'delete') {
-        database.update((s) => {
-          if (s.bookings.some((b) => b.propertyId === p.id && b.status === 'Accepted'))
-            throw new Error('This property has an accepted booking. Disable the listing instead.');
-          return {
-            ...s,
-            properties: s.properties.filter((x) => x.id !== p.id),
-            bookings: s.bookings.map((b) =>
-              b.propertyId === p.id && b.status === 'Pending'
-                ? { ...b, status: 'Cancelled', response: 'The owner removed this listing.' }
-                : b,
-            ),
-            favorites: Object.fromEntries(
-              Object.entries(s.favorites).map(([id, ids]) => [id, ids.filter((id) => id !== p.id)]),
-            ),
-            notifications: [
-              ...s.bookings
-                .filter((b) => b.propertyId === p.id && b.status === 'Pending')
-                .map((b) => ({
-                  id: uid(),
-                  userId: b.renterId,
-                  title: 'Property unavailable',
-                  body: p.title + ' was removed by the owner.',
-                  path: '/renter/bookings',
-                  read: false,
-                  createdAt: new Date().toISOString(),
-                })),
-              ...s.notifications,
-            ],
-          };
-        });
-      } else if (type === 'occupied') {
-        collection('properties').update(p.id, { spaces: 0 });
-      } else {
-        collection('properties').update(p.id, {
-          status: p.status === 'Published' ? 'Disabled' : 'Published',
-        });
-      }
-      setConfirm(null);
-    } catch (e) {
-      setError(e.message);
+      manageListing(user, property.id, type);
+    } catch (error) {
+      setError(error.message);
+    } finally {
       setConfirm(null);
     }
   }
