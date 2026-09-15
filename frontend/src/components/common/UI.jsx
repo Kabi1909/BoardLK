@@ -71,6 +71,8 @@ export function Avatar({ user }) {
 }
 export function Modal({ title, onClose, children, wide = false }) {
   const ref = useRef();
+  const closeHandler = useRef(onClose);
+  closeHandler.current = onClose;
   const id = useId();
   useEffect(() => {
     const previous = document.activeElement;
@@ -78,7 +80,7 @@ export function Modal({ title, onClose, children, wide = false }) {
     document.body.style.overflow = 'hidden';
     ref.current?.focus();
     const key = (e) => {
-      if (e.key === 'Escape') onClose();
+      if (e.key === 'Escape') closeHandler.current();
       if (e.key === 'Tab') {
         const items = ref.current.querySelectorAll('button,a,input,select,textarea,[tabindex="0"]');
         const first = items[0],
@@ -101,7 +103,7 @@ export function Modal({ title, onClose, children, wide = false }) {
       document.removeEventListener('keydown', key);
       previous?.focus();
     };
-  }, [onClose]);
+  }, []);
   return (
     <div className="modal-backdrop" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
       <section

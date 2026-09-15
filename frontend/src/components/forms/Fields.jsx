@@ -67,8 +67,18 @@ export function FormTextarea({ label, error, ...props }) {
         {label}
         {props.required && ' *'}
       </label>
-      <textarea id={id} rows={4} {...props} aria-invalid={!!error} />
-      {error && <small className="error">{error}</small>}
+      <textarea
+        id={id}
+        rows={4}
+        {...props}
+        aria-invalid={!!error}
+        aria-describedby={error ? id + '-error' : undefined}
+      />
+      {error && (
+        <small id={id + '-error'} className="error">
+          {error}
+        </small>
+      )}
     </div>
   );
 }

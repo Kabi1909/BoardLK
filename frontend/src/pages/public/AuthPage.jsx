@@ -40,6 +40,7 @@ export default function AuthPage({ mode = 'login' }) {
     const errs = {};
     if (mode !== 'reset' && !emailValid(form.email)) errs.email = 'Enter a valid email address.';
     if (mode === 'register') {
+      if (!['renter', 'owner'].includes(form.role)) errs.role = 'Choose a role.';
       if (form.name.trim().length < 3) errs.name = 'Enter your full name.';
       if (!phoneValid(form.phone)) errs.phone = 'Use a valid Sri Lankan number, e.g. 0771234567.';
     }
@@ -54,15 +55,13 @@ export default function AuthPage({ mode = 'login' }) {
     setBusy(true);
     try {
       if (mode === 'login') {
-        await login(form);
-        const session = JSON.parse(
-          localStorage.getItem('boardlk-auth') || sessionStorage.getItem('boardlk-auth'),
-        );
+        const session = await login(form);
         const from = location.state?.from;
         const allowed =
           from?.startsWith('/properties') || from?.startsWith('/' + session.user.role + '/');
         navigate(allowed ? from : '/' + session.user.role + '/dashboard', { replace: true });
       } else if (mode === 'register') {
+        if (!['renter', 'owner'].includes(form.role)) errs.role = 'Choose a role.';
         await register(form);
         navigate('/' + form.role + '/dashboard', { replace: true });
       } else if (mode === 'forgot') {
@@ -182,6 +181,7 @@ export default function AuthPage({ mode = 'login' }) {
                   { value: 'owner', label: 'Boarding Owner' },
                 ]}
                 value={form.role}
+                error={errors.role}
                 onChange={(e) => set('role', e.target.value)}
                 required
               />
