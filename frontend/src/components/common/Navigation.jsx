@@ -1,3 +1,4 @@
+import AccountMenu from './AccountMenu';
 import { useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { House, Menu, X, ArrowUpRight, Bell, LogOut } from 'lucide-react';
@@ -145,9 +146,7 @@ export function Navbar() {
           {user ? (
             <>
               <NotificationDropdown />
-              <Link className="btn small secondary desktop-only" to={'/' + user.role + '/profile'}>
-                {user.name.split(' ')[0]}
-              </Link>
+              <AccountMenu />
               <button
                 className="icon-button desktop-only"
                 aria-label="Logout"

@@ -1,0 +1,31 @@
+.account-menu {
+  position: relative;
+}
+.account-links {
+  position: absolute;
+  right: 0;
+  top: 45px;
+  z-index: 70;
+  width: 210px;
+  padding: 9px;
+  background: white;
+  border: 1px solid #dce5d8;
+  border-radius: 10px;
+  box-shadow: 0 12px 35px #173b2420;
+}
+.account-links a,
+.account-links button {
+  display: flex;
+  gap: 9px;
+  align-items: center;
+  width: 100%;
+  padding: 11px 12px;
+  font-size: 12px;
+  border-radius: 6px;
+  text-align: left;
+}
+.account-links a:hover,
+.account-links button:hover {
+  background: #edf4e7;
+  color: #176b52;
+}

@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react';
-import { Routes, Route, Link } from 'react-router-dom';
+import { Routes, Route, Link, Navigate } from 'react-router-dom';
 import { ProtectedRoute, RoleRoute } from './components/common/ProtectedRoute';
 import { LoadingSpinner, EmptyState } from './components/common/UI';
 import PublicLayout from './layouts/PublicLayout';
@@ -65,6 +65,7 @@ export default function App() {
           {['renter', 'owner'].map((role) => (
             <Route key={role} element={<RoleRoute role={role} />}>
               <Route path={role} element={<DashboardLayout />}>
+                <Route index element={<Navigate to="dashboard" replace />} />
                 <Route
                   path="dashboard"
                   element={role === 'renter' ? <RenterDashboard /> : <OwnerDashboard />}
