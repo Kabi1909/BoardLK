@@ -1,3 +1,4 @@
+import { validateBooking } from '../utils/bookingValidation.js';
 import { database } from './store.js';
 import { uid } from '../utils/format.js';
 const note = (userId, title, body, path) => ({
@@ -13,6 +14,8 @@ export function requestBooking(user, property, form) {
   if (user.role !== 'renter') throw new Error('Only renters can request bookings.');
   database.update((s) => {
     const p = s.properties.find((p) => p.id === property.id);
+    const errors = validateBooking(form, p?.spaces || 0);
+    if (Object.keys(errors).length) throw new Error(Object.values(errors)[0]);
     if (!p || p.status !== 'Published' || p.spaces < Number(form.occupants))
       throw new Error('This property no longer has enough available spaces.');
     if (
@@ -188,4 +191,3 @@ export function addReview(user, property, rating, comment) {
     };
   });
 }
-
