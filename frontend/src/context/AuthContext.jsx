@@ -1,38 +1,46 @@
 import { createContext, useContext, useState } from 'react';
-import { getSession } from '../services/api';
+import { getSession, saveSession, clearSession, SESSION_KEY } from '../services/session';
 import { authService } from '../services/authService';
 import { collection } from '../services/store';
-const Context = createContext();
+
+const AuthContext = createContext();
+
 export function AuthProvider({ children }) {
   const [session, setSession] = useState(getSession);
-  const persist = (s, remember) => {
-    localStorage.removeItem('boardlk-auth');
-    sessionStorage.removeItem('boardlk-auth');
-    (remember ? localStorage : sessionStorage).setItem('boardlk-auth', JSON.stringify(s));
-    setSession(s);
-  };
+
+  function persist(nextSession, remember) {
+    saveSession(nextSession, remember);
+    setSession(nextSession);
+    return nextSession;
+  }
+
+  async function login(form) {
+    return persist(await authService.login(form), form.remember);
+  }
+
+  async function register(form) {
+    return persist(await authService.register(form), false);
+  }
+
+  function logout() {
+    clearSession();
+    setSession(null);
+  }
+
+  function updateUser(patch) {
+    const { id, role, passwordHash, ...profile } = patch;
+    collection('users').update(session.user.id, profile);
+    persist(
+      { ...session, user: { ...session.user, ...profile } },
+      !!localStorage.getItem(SESSION_KEY),
+    );
+  }
+
   return (
-    <Context.Provider
-      value={{
-        user: session?.user,
-        login: async (f) => persist(await authService.login(f), f.remember),
-        register: async (f) => persist(await authService.register(f), false),
-        logout: () => {
-          localStorage.removeItem('boardlk-auth');
-          sessionStorage.removeItem('boardlk-auth');
-          setSession(null);
-        },
-        updateUser: (patch) => {
-          collection('users').update(session.user.id, patch);
-          persist(
-            { ...session, user: { ...session.user, ...patch } },
-            !!localStorage.getItem('boardlk-auth'),
-          );
-        },
-      }}
-    >
+    <AuthContext.Provider value={{ user: session?.user, login, register, logout, updateUser }}>
       {children}
-    </Context.Provider>
+    </AuthContext.Provider>
   );
 }
-export const useAuth = () => useContext(Context);
+
+export const useAuth = () => useContext(AuthContext);
