@@ -1,9 +1,9 @@
 export const photos = [
-  'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=1200&q=80',
-  'https://images.unsplash.com/photo-1484154218962-a197022b5858?auto=format&fit=crop&w=1200&q=80',
-  'https://images.unsplash.com/photo-1493809842364-78817add7ffb?auto=format&fit=crop&w=1200&q=80',
-  'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1200&q=80',
-  'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=1200&q=80',
+  '/images/boarding-1.jpg',
+  '/images/boarding-2.jpg',
+  '/images/boarding-3.jpg',
+  '/images/boarding-4.jpg',
+  '/images/boarding-5.jpg',
 ];
 const ownerNames = [
   'Nimal Perera',

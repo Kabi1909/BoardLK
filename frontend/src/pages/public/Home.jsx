@@ -19,11 +19,7 @@ import { photos } from '../../data/mockData';
 import SearchBar from '../../components/property/SearchBar';
 import { PropertyGrid } from '../../components/property/PropertyCard';
 import { Avatar } from '../../components/common/UI';
-const locationPhotos = [
-  'https://images.unsplash.com/photo-1588258219511-64eb629cb833?auto=format&fit=crop&w=500&q=80',
-  'https://images.unsplash.com/photo-1546708973-b339540b5162?auto=format&fit=crop&w=500&q=80',
-  ...photos,
-];
+const locationPhotos = ['/images/boarding-6.jpg', '/images/boarding-7.jpg', ...photos];
 export default function Home() {
   const { properties } = useStore();
   const published = properties.filter((p) => p.status === 'Published');
