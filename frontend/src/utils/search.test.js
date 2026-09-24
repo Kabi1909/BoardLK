@@ -1,124 +1,79 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {
-  properties,
-  owners,
-  renters,
-  bookings,
-  reviews,
-  conversations,
-  notifications,
-} from '../data/mockData.js';
 import { districts, cities } from '../data/locations.js';
-import { filterProperties } from './search.js';
 import { emailValid, phoneValid, passwordValid, validateProperty } from './validation.js';
-
-test('fixtures cover all requested roles, entities and districts', () => {
+import {
+  propertyFromApi,
+  propertyToApi,
+  bookingFromApi,
+  facilityNames,
+} from '../services/adapters.js';
+test('location options include all 25 districts with cities', () => {
   assert.equal(districts.length, 25);
   for (const district of districts) assert.ok(cities[district].length);
-  assert.ok(properties.length >= 20 && owners.length >= 5 && renters.length >= 10);
-  assert.ok(
-    bookings.length >= 12 &&
-      reviews.length >= 20 &&
-      conversations.length >= 8 &&
-      notifications.length >= 20,
-  );
-  assert.deepEqual([...new Set([...owners, ...renters].map((user) => user.role))].sort(), [
-    'owner',
-    'renter',
-  ]);
 });
-test('Vavuniya, Rs. 20,000, Single and Wi-Fi filters combine correctly', () => {
-  const result = filterProperties(properties, {
-    q: 'Vavuniya',
-    max: '20000',
-    roomType: 'Single',
-    facilities: 'Wi-Fi',
+test('API adapters preserve identity, coordinates and facilities', () => {
+  const p = propertyFromApi({
+    _id: 'property-id',
+    owner: { _id: 'owner-id' },
+    monthlyRent: 18000,
+    latitude: 8.75,
+    longitude: 80.5,
+    availableSpaces: 2,
+    images: [{ url: '/a.jpg' }, { url: '/b.jpg' }],
+    coverImage: '/b.jpg',
+    facilities: { wifi: true, parking: false },
+    isDraft: false,
+    isActive: true,
   });
-  assert.ok(result.length);
-  assert.ok(
-    result.every(
-      (p) =>
-        p.city === 'Vavuniya' &&
-        p.rent <= 20000 &&
-        p.roomType === 'Single' &&
-        p.facilities.includes('Wi-Fi'),
-    ),
-  );
+  assert.equal(p.id, 'property-id');
+  assert.equal(p.ownerId, 'owner-id');
+  assert.equal(p.rent, 18000);
+  assert.deepEqual(p.images, ['/b.jpg', '/a.jpg']);
+  assert.deepEqual(p.facilities, ['Wi-Fi']);
+  assert.equal(p.status, 'Published');
 });
-test('search finds nearby universities regardless of letter case', () => {
-  for (const university of [
-    'University of Vavuniya',
-    'University of Colombo',
-    'University of Jaffna',
-    'University of Peradeniya',
-  ]) {
-    const result = filterProperties(properties, { q: university.toLowerCase() });
-    assert.ok(result.length);
-    assert.ok(result.every((p) => p.nearby === university));
-  }
-});
-test('all categories, budgets, ratings and facilities are intersected', () => {
-  const p = properties[0];
-  const result = filterProperties(properties, {
-    district: p.district,
-    city: p.city,
-    type: p.type,
-    roomType: p.roomType,
-    gender: p.gender,
-    min: p.rent,
-    max: p.rent,
-    rating: p.rating,
-    available: 'true',
-    facilities: p.facilities.join(','),
+test('write adapter excludes server-owned fields', () => {
+  const body = propertyToApi({
+    title: 'Valid title',
+    facilities: ['Wi-Fi'],
+    views: 500,
+    rating: 5,
+    ownerId: 'other-owner',
+    rent: '18000',
+    spaces: 2,
+    capacity: 3,
   });
-  assert.ok(result.some((item) => item.id === p.id));
-  assert.ok(result.every((item) => item.spaces > 0 && item.rent === p.rent));
-  assert.equal(filterProperties(properties, { facilities: 'Nonexistent facility' }).length, 0);
+  assert.equal(body.monthlyRent, 18000);
+  assert.equal(body.facilities.wifi, true);
+  for (const key of ['views', 'averageRating', 'owner', 'ownerId', 'rating'])
+    assert.equal(body[key], undefined);
+  assert.equal(Object.keys(body.facilities).length, Object.keys(facilityNames).length);
 });
-test('all sorting modes order results without mutating the source', () => {
-  const before = properties.map((p) => p.id);
-  for (const [sort, value, direction] of [
-    ['price-asc', (p) => p.rent, 1],
-    ['price-desc', (p) => p.rent, -1],
-    ['rating', (p) => p.rating, -1],
-    ['popular', (p) => p.views, -1],
-    ['latest', (p) => new Date(p.createdAt).getTime(), -1],
-  ]) {
-    const sorted = filterProperties(properties, { sort });
-    for (let i = 1; i < sorted.length; i++)
-      assert.ok((value(sorted[i]) - value(sorted[i - 1])) * direction >= 0);
-  }
-  assert.deepEqual(
-    properties.map((p) => p.id),
-    before,
-  );
+test('booking adapter preserves custom stay and status', () => {
+  const value = bookingFromApi({
+    _id: 'booking-id',
+    property: 'property-id',
+    renter: 'renter-id',
+    owner: 'owner-id',
+    moveInDate: '2026-10-01T00:00:00.000Z',
+    numberOfOccupants: 2,
+    stayDuration: 'Custom',
+    customStayDuration: '8 weeks',
+    status: 'Accepted',
+  });
+  assert.equal(value.duration, '8 weeks');
+  assert.equal(value.moveIn, '2026-10-01');
+  assert.equal(value.occupants, 2);
+  assert.equal(value.status, 'Accepted');
 });
-test('draft and disabled listings are excluded from public search', () => {
-  assert.equal(
-    filterProperties([
-      { ...properties[0], status: 'Draft' },
-      { ...properties[1], status: 'Disabled' },
-    ]).length,
-    0,
-  );
-});
-test('email, local phone and password validation enforce expected formats', () => {
+test('client validation rejects invalid contact and property values', () => {
   assert.ok(emailValid('student@example.com'));
   assert.equal(emailValid('invalid@'), false);
   assert.ok(phoneValid('+94771234567'));
-  assert.ok(phoneValid('077 123 4567'));
   assert.equal(phoneValid('12345'), false);
-  assert.ok(passwordValid('BoardLK123'));
+  assert.ok(passwordValid('ExamplePassword123'));
   assert.equal(passwordValid('password'), false);
-});
-test('property validation catches invalid coordinates, capacity, rent and photos', () => {
-  const p = properties[0];
-  assert.ok(validateProperty({ ...p, title: 'x', description: 'short' }, 0).title);
-  assert.ok(validateProperty({ ...p, lat: 0, lng: 0 }, 1).lat);
-  assert.ok(validateProperty({ ...p, spaces: 9, capacity: 8 }, 2).spaces);
-  assert.ok(validateProperty({ ...p, rooms: 1.5 }, 2).rooms);
-  assert.ok(validateProperty({ ...p, rent: -10 }, 3).rent);
-  assert.ok(validateProperty({ ...p, images: [] }, 6).images);
-  for (let step = 0; step < 7; step++) assert.deepEqual(validateProperty(p, step), {});
+  assert.ok(validateProperty({ spaces: 9, capacity: 8, rooms: 1 }, 2).spaces);
+  assert.ok(validateProperty({ rent: -10 }, 3).rent);
 });

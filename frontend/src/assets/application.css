@@ -514,22 +514,6 @@
 .auth-form .section-heading .text-link {
   font-size: 10px;
 }
-.demo-note {
-  background: #f4f7ee;
-  border: 1px dashed #d9e3cf;
-  padding: 15px;
-  border-radius: 9px;
-  margin-top: 24px;
-  font-size: 10px;
-}
-.demo-note p {
-  font-size: 10px;
-  margin: 7px 0;
-}
-.demo-note small {
-  font-size: 9px;
-  color: #89957c;
-}
 .auth-back {
   display: block;
   margin-top: 25px;

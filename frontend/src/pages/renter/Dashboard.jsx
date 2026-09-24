@@ -1,3 +1,4 @@
+import { propertyFromApi } from '../../services/adapters';
 import { Link } from 'react-router-dom';
 import { Heart, Clock, CheckCircle, MessageSquare, ArrowRight } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
@@ -39,7 +40,8 @@ export default function RenterDashboard() {
           [
             MessageSquare,
             'Unread Messages',
-            conversations.filter((c) => !c.readBy?.includes(user.id) && c.messages.length).length,
+            s.dashboard?.unreadMessages ??
+              conversations.filter((c) => !c.readBy?.includes(user.id) && c.messages.length).length,
           ],
         ].map(([icon, label, value]) => (
           <StatCard key={label} icon={icon} label={label} value={value} />
@@ -53,14 +55,17 @@ export default function RenterDashboard() {
           </Link>
         </div>
         <PropertyGrid
-          properties={s.properties
-            .filter(
-              (p) =>
-                p.status === 'Published' &&
-                p.spaces > 0 &&
-                (!user.preferredDistrict || p.district === user.preferredDistrict),
-            )
-            .slice(0, 3)}
+          properties={
+            s.dashboard?.recommendations?.map(propertyFromApi).slice(0, 3) ||
+            s.properties
+              .filter(
+                (p) =>
+                  p.status === 'Published' &&
+                  p.spaces > 0 &&
+                  (!user.preferredDistrict || p.district === user.preferredDistrict),
+              )
+              .slice(0, 3)
+          }
         />
       </section>
       <div className="grid-2">

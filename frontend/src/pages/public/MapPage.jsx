@@ -1,22 +1,22 @@
 import { useState } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
-import { useStore } from '../../hooks/useStore';
-import { filterProperties } from '../../utils/search';
+import { usePropertySearch } from '../../hooks/usePropertySearch';
+
 import PropertyMap from '../../components/map/PropertyMap';
 import PropertyCard from '../../components/property/PropertyCard';
 import { EmptyState } from '../../components/common/UI';
 export default function MapPage() {
   const [params, setParams] = useSearchParams();
   const [view, setView] = useState('map');
-  const { properties } = useStore();
-  const result = filterProperties(properties, Object.fromEntries(params));
+  const search = usePropertySearch(Object.fromEntries(params), { map: true });
+  const result = search.items;
   return (
     <div className="map-page">
       <div className="container">
         <div className="section-heading page-heading">
           <div>
             <h1>Find your neighbourhood</h1>
-            <p>{result.length} places across Sri Lanka</p>
+            <p>{search.total} places across Sri Lanka</p>
           </div>
           <Link className="btn secondary" to={'/properties?' + params}>
             All filters
@@ -53,7 +53,21 @@ export default function MapPage() {
             {result.map((p) => (
               <PropertyCard key={p.id} property={p} />
             ))}
-            {!result.length && <EmptyState title="No matching places" />}
+            {search.error ? (
+              <EmptyState
+                title="Map search unavailable"
+                description={search.error}
+                action={
+                  <button className="btn" onClick={search.retry}>
+                    Retry
+                  </button>
+                }
+              />
+            ) : (
+              !result.length && (
+                <EmptyState title={search.loading ? 'Loading places…' : 'No matching places'} />
+              )
+            )}
           </div>
           <div className="map-canvas">
             <PropertyMap properties={result} />

@@ -1,29 +1,8 @@
-import api, { isMock } from './api';
-import { database } from './store';
-
-// Favorites are a per-user index, not a flat entity collection.
+import { allPages, mutate } from './remoteStore.js';
 export const favoriteService = {
-  async list(userId) {
-    return isMock ? database.get().favorites[userId] || [] : (await api.get('/favorites')).data;
+  async list() {
+    return (await allPages('/favorites')).filter((x) => x.property).map((x) => x.property._id);
   },
-  async create({ userId, propertyId }) {
-    if (!isMock) return (await api.post('/favorites', { propertyId })).data;
-    database.update((state) => ({
-      ...state,
-      favorites: {
-        ...state.favorites,
-        [userId]: [...new Set([...(state.favorites[userId] || []), propertyId])],
-      },
-    }));
-  },
-  async remove(propertyId, userId) {
-    if (!isMock) return api.delete('/favorites/' + propertyId);
-    database.update((state) => ({
-      ...state,
-      favorites: {
-        ...state.favorites,
-        [userId]: (state.favorites[userId] || []).filter((id) => id !== propertyId),
-      },
-    }));
-  },
+  create: ({ propertyId }) => mutate('post', '/favorites/' + propertyId),
+  remove: (propertyId) => mutate('delete', '/favorites/' + propertyId),
 };

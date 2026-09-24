@@ -2,10 +2,9 @@ import axios from 'axios';
 import { getSession } from './session';
 
 export { getSession } from './session';
-export const isMock = import.meta.env.VITE_USE_MOCK !== 'false';
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
+  baseURL: import.meta.env?.VITE_API_URL || 'http://localhost:5000/api',
   timeout: 15000,
 });
 
@@ -22,7 +21,17 @@ api.interceptors.response.use(
       error.response?.data?.message || error.message || 'Unable to connect. Please retry.',
     );
     normalized.status = error.response?.status;
-    normalized.fields = error.response?.data?.errors || {};
+    normalized.fields = Object.fromEntries(
+      (error.response?.data?.errors || []).map((item) => [item.field, item.message]),
+    );
+    if (
+      normalized.status === 401 &&
+      !['/auth/login', '/auth/register'].includes(error.config?.url) &&
+      getSession()?.token &&
+      error.config?.headers?.Authorization === 'Bearer ' + getSession().token
+    ) {
+      window.dispatchEvent(new Event('boardlk-session-expired'));
+    }
     return Promise.reject(normalized);
   },
 );

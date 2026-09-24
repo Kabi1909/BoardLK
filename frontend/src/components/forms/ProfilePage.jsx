@@ -13,7 +13,7 @@ export default function ProfilePage() {
   const { user, updateUser } = useAuth();
   const s = useStore();
   const [editing, setEditing] = useState(false);
-  const [f, setF] = useState({ ...user });
+  const [f, setF] = useState({ ...user, ...s.profile });
   const [errors, setErrors] = useState({});
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
@@ -35,7 +35,7 @@ export default function ProfilePage() {
       {...(type === 'date' ? { max: today() } : {})}
     />
   );
-  function save(e) {
+  async function save(e) {
     e.preventDefault();
     const errors = {};
     if ((f.name || '').trim().length < 3) errors.name = 'Enter your full name.';
@@ -51,12 +51,19 @@ export default function ProfilePage() {
     if (Object.keys(errors).length) return;
     try {
       const { id, role, ...patch } = f;
-      updateUser(patch);
+      await updateUser(patch);
       setEditing(false);
       setMessage('Your profile has been updated.');
       setError('');
     } catch (e) {
       setError(e.message);
+      if (e.fields)
+        setErrors({
+          ...e.fields,
+          dob: e.fields.dateOfBirth,
+          budget: e.fields.monthlyBudget,
+          workplace: e.fields.universityOrWorkplace,
+        });
     }
   }
   return (
@@ -71,7 +78,7 @@ export default function ProfilePage() {
           <button
             className="btn"
             onClick={() => {
-              setF({ ...user });
+              setF({ ...user, ...s.profile });
               setEditing(true);
               setMessage('');
             }}
@@ -100,6 +107,13 @@ export default function ProfilePage() {
                       if (e.target.files[0]) set('photo', await readImage(e.target.files[0]));
                     } catch (e) {
                       setError(e.message);
+                      if (e.fields)
+                        setErrors({
+                          ...e.fields,
+                          dob: e.fields.dateOfBirth,
+                          budget: e.fields.monthlyBudget,
+                          workplace: e.fields.universityOrWorkplace,
+                        });
                     }
                   }}
                 />
@@ -200,7 +214,7 @@ export default function ProfilePage() {
               className="btn secondary"
               onClick={() => {
                 setEditing(false);
-                setF({ ...user });
+                setF({ ...user, ...s.profile });
                 setErrors({});
                 setError('');
               }}

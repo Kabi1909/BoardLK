@@ -16,8 +16,9 @@ export default function BookingModal({ property, onClose }) {
   const [errors, setErrors] = useState({});
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+  const [busy, setBusy] = useState(false);
   const set = (k, v) => setF({ ...f, [k]: v });
-  function submit(e) {
+  async function submit(e) {
     e.preventDefault();
     const errors = {};
     if (!f.moveIn || f.moveIn < today()) errors.moveIn = 'Choose today or a future date.';
@@ -30,14 +31,24 @@ export default function BookingModal({ property, onClose }) {
       errors.message = 'Write at least 10 characters for the owner.';
     setErrors(errors);
     if (Object.keys(errors).length) return;
+    setBusy(true);
     try {
-      requestBooking(user, property, {
+      await requestBooking(user, property, {
         ...f,
         duration: f.duration === 'Custom' ? f.customDuration : f.duration,
       });
       setSuccess(true);
     } catch (e) {
       setError(e.message);
+      if (e.fields)
+        setErrors({
+          ...e.fields,
+          moveIn: e.fields.moveInDate,
+          occupants: e.fields.numberOfOccupants,
+          message: e.fields.renterMessage,
+        });
+    } finally {
+      setBusy(false);
     }
   }
   return (
@@ -112,7 +123,9 @@ export default function BookingModal({ property, onClose }) {
             <button type="button" className="btn secondary" onClick={onClose}>
               Cancel
             </button>
-            <button className="btn">Send request</button>
+            <button className="btn" disabled={busy}>
+              {busy ? 'Sending…' : 'Send request'}
+            </button>
           </div>
         </form>
       )}

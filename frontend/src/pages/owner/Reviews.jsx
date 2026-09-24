@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useStore } from '../../hooks/useStore';
-import { collection } from '../../services/store';
+
+import { mutate } from '../../services/remoteStore';
+
 import { ReviewCard } from '../../components/property/Reviews';
 import { FormTextarea, FormSelect } from '../../components/forms/Fields';
 import { EmptyState } from '../../components/common/UI';
@@ -11,14 +13,14 @@ function Reply({ review }) {
   const [error, setError] = useState('');
   return editing ? (
     <form
-      onSubmit={(e) => {
+      onSubmit={async (e) => {
         e.preventDefault();
         if (text.trim().length < 3) {
           setError('Write at least 3 characters.');
           return;
         }
         try {
-          collection('reviews').update(review.id, { reply: text.trim() });
+          await mutate('post', '/reviews/' + review.id + '/reply', { reply: text.trim() });
           setEditing(false);
         } catch (e) {
           setError(e.message);

@@ -16,14 +16,14 @@ export function ReviewForm({ property }) {
   ) : (
     <form
       className="review-form"
-      onSubmit={(e) => {
+      onSubmit={async (e) => {
         e.preventDefault();
         if (comment.trim().length < 10) {
           setError('Write at least 10 characters.');
           return;
         }
         try {
-          addReview(user, property, rating, comment);
+          await addReview(user, property, rating, comment);
           setDone(true);
         } catch (e) {
           setError(e.message);

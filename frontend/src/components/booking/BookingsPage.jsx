@@ -91,17 +91,25 @@ export default function BookingsPage() {
                   {p && (
                     <button
                       className="btn secondary small"
-                      onClick={() =>
-                        navigate(
-                          '/' +
-                            user.role +
-                            '/messages?conversation=' +
-                            startConversation(user, p, b.renterId),
-                        )
-                      }
+                      onClick={async () => {
+                        try {
+                          const conversation = await startConversation(user, p, b.renterId);
+                          navigate('/' + user.role + '/messages?conversation=' + conversation);
+                        } catch (error) {
+                          setError(error.message);
+                        }
+                      }}
                     >
                       <MessageCircle size={14} />
                       Message {owner ? 'renter' : 'owner'}
+                    </button>
+                  )}
+                  {owner && b.status === 'Accepted' && (
+                    <button
+                      className="btn small"
+                      onClick={() => setConfirm({ id: b.id, status: 'Completed' })}
+                    >
+                      Complete stay
                     </button>
                   )}
                   {b.status === 'Pending' &&
@@ -109,7 +117,7 @@ export default function BookingsPage() {
                       <>
                         <button
                           className="btn secondary small"
-                          onClick={() => {
+                          onClick={async () => {
                             setConfirm({ id: b.id, status: 'Rejected' });
                             setResponse('');
                           }}
@@ -118,7 +126,7 @@ export default function BookingsPage() {
                         </button>
                         <button
                           className="btn small"
-                          onClick={() => {
+                          onClick={async () => {
                             setConfirm({ id: b.id, status: 'Accepted' });
                             setResponse('');
                           }}
@@ -164,7 +172,9 @@ export default function BookingsPage() {
               ? 'Cancel this request?'
               : confirm.status === 'Accepted'
                 ? 'Accept this booking?'
-                : 'Reject this booking?'
+                : confirm.status === 'Completed'
+                  ? 'Complete this stay?'
+                  : 'Reject this booking?'
           }
           onClose={() => setConfirm(null)}
         >
@@ -186,9 +196,9 @@ export default function BookingsPage() {
             </button>
             <button
               className="btn"
-              onClick={() => {
+              onClick={async () => {
                 try {
-                  updateBooking(user, confirm.id, confirm.status, response);
+                  await updateBooking(user, confirm.id, confirm.status, response);
                   setConfirm(null);
                   setError('');
                 } catch (e) {

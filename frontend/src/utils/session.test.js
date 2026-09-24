@@ -1,7 +1,7 @@
 import test, { beforeEach } from 'node:test';
 import assert from 'node:assert/strict';
 import { getSession, saveSession, clearSession, SESSION_KEY } from '../services/session.js';
-function mockStorage() {
+function testStorage() {
   const values = new Map();
   return {
     getItem: (key) => values.get(key) || null,
@@ -10,10 +10,13 @@ function mockStorage() {
   };
 }
 beforeEach(() => {
-  globalThis.localStorage = mockStorage();
-  globalThis.sessionStorage = mockStorage();
+  globalThis.localStorage = testStorage();
+  globalThis.sessionStorage = testStorage();
 });
-const session = { token: 'mock-token', user: { id: 'r1', name: 'Demo Renter', role: 'renter' } };
+const session = {
+  token: 'test-session-token',
+  user: { id: 'r1', name: 'Test Renter', role: 'renter' },
+};
 test('remember me selects local storage and clears the session copy', () => {
   saveSession(session, false);
   saveSession(session, true);

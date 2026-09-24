@@ -13,9 +13,11 @@ import {
   Star,
   Check,
   Compass,
+  House,
 } from 'lucide-react';
 import { useStore } from '../../hooks/useStore';
-import { photos } from '../../data/mockData';
+import CommunityReviews from '../../components/property/CommunityReviews';
+import { photos } from '../../assets/photography';
 import SearchBar from '../../components/property/SearchBar';
 import { PropertyGrid } from '../../components/property/PropertyCard';
 import { Avatar } from '../../components/common/UI';
@@ -43,13 +45,10 @@ export default function Home() {
               near your university or workplace.
             </p>
             <div className="hero-proof">
-              <div className="avatar-stack">
-                {['Kavindu', 'Amaya', 'Arun', 'Nethmi'].map((name) => (
-                  <Avatar key={name} user={{ name }} />
-                ))}
-              </div>
+              <span className="floating-icon">
+                <House size={24} />
+              </span>
               <div>
-                <div className="five-stars">★★★★★</div>
                 <small>A new place. A fresh start. A better everyday.</small>
               </div>
             </div>
@@ -279,46 +278,8 @@ export default function Home() {
           </div>
         </div>
       </section>
-      <section className="section muted-bg">
-        <div className="container">
-          <div className="center-heading">
-            <span className="eyebrow">STORIES FROM OUR COMMUNITY</span>
-            <h2>A little space. A big difference.</h2>
-            <p>Illustrative stories from our demo community.</p>
-          </div>
-          <div className="grid-3">
-            {[
-              [
-                'Nethmi Perera',
-                'Student · Colombo',
-                'Finding a room close to campus was so much easier. I could compare the rent and message the owner before deciding.',
-              ],
-              [
-                'Arun Thiruchelvam',
-                'Student · Vavuniya',
-                'The location filters helped me find a quiet room near university that actually fit my budget.',
-              ],
-              [
-                'Dilani Fernando',
-                'Boarding owner · Galle',
-                'Keeping property details and booking requests in one place makes it easier to connect with prospective renters.',
-              ],
-            ].map(([name, role, quote]) => (
-              <article className="testimonial panel" key={name}>
-                <div className="five-stars">★★★★★</div>
-                <p>“{quote}”</p>
-                <div className="person">
-                  <Avatar user={{ name }} />
-                  <div>
-                    <strong>{name}</strong>
-                    <small>{role}</small>
-                  </div>
-                </div>
-              </article>
-            ))}
-          </div>
-        </div>
-      </section>
+
+      <CommunityReviews />
       <section className="section">
         <div className="container">
           <div className="cta">

@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import App from './App';
+import ApiDataBoundary from './components/common/ApiDataBoundary';
 import { AuthProvider } from './context/AuthContext';
 import { FavoritesProvider } from './context/FavoritesContext';
 import { NotificationProvider } from './context/NotificationContext';
@@ -20,7 +21,9 @@ ReactDOM.createRoot(document.getElementById('root')).render(
               Skip to content
             </a>
             <ScrollToTop />
-            <App />
+            <ApiDataBoundary>
+              <App />
+            </ApiDataBoundary>
           </NotificationProvider>
         </FavoritesProvider>
       </AuthProvider>

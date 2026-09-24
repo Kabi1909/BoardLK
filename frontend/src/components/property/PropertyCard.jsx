@@ -62,15 +62,17 @@ export function FavoriteButton({ propertyId }) {
 
 export default function PropertyCard({ property }) {
   const { reviews } = useStore();
-  const reviewCount = reviews.filter((review) => review.propertyId === property.id).length;
+  const reviewCount =
+    property.reviewCount ?? reviews.filter((review) => review.propertyId === property.id).length;
   const status =
     property.status !== 'Published'
       ? property.status
-      : property.spaces === 0
-        ? 'Fully Occupied'
-        : property.spaces === 1
-          ? 'Limited Availability'
-          : 'Available';
+      : property.availabilityStatus ||
+        (property.spaces === 0
+          ? 'Fully Occupied'
+          : property.spaces === 1
+            ? 'Limited Availability'
+            : 'Available');
 
   return (
     <article className="property-card card">

@@ -1,19 +1,17 @@
 import { createContext, useContext } from 'react';
 import { useAuth } from './AuthContext';
 import { useStore } from '../hooks/useStore';
-import { database } from '../services/store';
+import { mutate } from '../services/remoteStore';
 const Context = createContext();
 export function NotificationProvider({ children }) {
-  const { user } = useAuth();
-  const s = useStore();
+  const { user } = useAuth(),
+    s = useStore();
   const notifications = s.notifications.filter((n) => n.userId === user?.id);
   const markRead = (id) =>
-    database.update((s) => ({
-      ...s,
-      notifications: s.notifications.map((n) =>
-        n.userId === user?.id && (!id || n.id === id) ? { ...n, read: true } : n,
-      ),
-    }));
+    mutate('patch', id ? '/notifications/' + id + '/read' : '/notifications/read-all').catch(
+      (error) =>
+        window.dispatchEvent(new CustomEvent('boardlk-api-error', { detail: error.message })),
+    );
   return (
     <Context.Provider
       value={{

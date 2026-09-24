@@ -1,19 +1,25 @@
 import { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { Map, SlidersHorizontal, X } from 'lucide-react';
-import { useStore } from '../../hooks/useStore';
-import { filterProperties } from '../../utils/search';
+import { usePropertySearch } from '../../hooks/usePropertySearch';
+
 import SearchBar from '../../components/property/SearchBar';
 import FilterSidebar, { SortDropdown } from '../../components/property/FilterSidebar';
 import { PropertyGrid } from '../../components/property/PropertyCard';
-import { Pagination, Breadcrumbs, Modal } from '../../components/common/UI';
+import {
+  Pagination,
+  Breadcrumbs,
+  Modal,
+  LoadingSpinner,
+  EmptyState,
+} from '../../components/common/UI';
 export default function Properties() {
   const [params, setParams] = useSearchParams();
   const filters = Object.fromEntries(params);
   const [drawer, setDrawer] = useState(false);
-  const { properties } = useStore();
-  const result = filterProperties(properties, filters);
-  const pages = Math.ceil(result.length / 9);
+  const search = usePropertySearch(filters);
+  const result = search.items;
+  const pages = search.pages;
   const page = Math.min(Math.max(1, Number(filters.page) || 1), pages || 1);
   const change = (f) =>
     setParams(Object.fromEntries(Object.entries({ ...f, page: '1' }).filter(([, v]) => v)));
@@ -35,7 +41,7 @@ export default function Properties() {
           <div className="results">
             <div className="results-toolbar">
               <div>
-                <h3>{result.length} boarding places</h3>
+                <h3>{search.total} boarding places</h3>
                 <p>
                   {filters.q
                     ? 'Results for “' + filters.q + '”'
@@ -76,7 +82,21 @@ export default function Properties() {
                 <button onClick={reset}>Clear all</button>
               </div>
             )}
-            <PropertyGrid properties={result.slice((page - 1) * 9, page * 9)} />
+            {search.loading ? (
+              <LoadingSpinner />
+            ) : search.error ? (
+              <EmptyState
+                title="Search unavailable"
+                description={search.error}
+                action={
+                  <button className="btn" onClick={search.retry}>
+                    Retry
+                  </button>
+                }
+              />
+            ) : (
+              <PropertyGrid properties={result} />
+            )}
             <Pagination
               page={page}
               pages={pages}

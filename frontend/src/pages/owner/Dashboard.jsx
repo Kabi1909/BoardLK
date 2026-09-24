@@ -25,28 +25,38 @@ export default function OwnerDashboard() {
   const reviews = s.reviews.filter((r) => ids.includes(r.propertyId));
   const conversations = s.conversations.filter((c) => c.ownerId === user.id);
   const views = own.reduce((a, p) => a + p.views, 0);
-  const chart = ['Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'].map((month, i) => ({
-    month,
-    views: Math.round(views * [0.08, 0.11, 0.15, 0.18, 0.22, 0.26][i]),
-    requests: bookings.filter((b) => new Date(b.createdAt).getMonth() === i + 3).length,
+  const chart = (s.dashboard?.charts || []).map((point) => ({
+    ...point,
+    requests: point.bookings,
   }));
   const stats = [
-    [House, 'Total Properties', own.length],
-    [CheckCircle, 'Active Listings', own.filter((p) => p.status === 'Published').length],
+    [House, 'Total Properties', s.dashboard?.totalProperties ?? own.length],
+    [
+      CheckCircle,
+      'Active Listings',
+      s.dashboard?.activeListings ?? own.filter((p) => p.status === 'Published').length,
+    ],
     [
       BedDouble,
       'Available Spaces',
-      own.filter((p) => p.status === 'Published').reduce((a, p) => a + Number(p.spaces), 0),
+      s.dashboard?.availableSpaces ??
+        own.filter((p) => p.status === 'Published').reduce((a, p) => a + Number(p.spaces), 0),
     ],
-    [Clock, 'Pending Requests', bookings.filter((b) => b.status === 'Pending').length],
-    [CheckCircle, 'Accepted Requests', bookings.filter((b) => b.status === 'Accepted').length],
-    [Eye, 'Total Views', views],
+    [
+      Clock,
+      'Pending Requests',
+      s.dashboard?.pendingRequests ?? bookings.filter((b) => b.status === 'Pending').length,
+    ],
+    [
+      CheckCircle,
+      'Accepted Requests',
+      s.dashboard?.acceptedRequests ?? bookings.filter((b) => b.status === 'Accepted').length,
+    ],
+    [Eye, 'Total Views', s.dashboard?.totalViews ?? views],
     [
       Star,
       'Average Rating',
-      reviews.length
-        ? (reviews.reduce((a, r) => a + r.rating, 0) / reviews.length).toFixed(1)
-        : '—',
+      s.dashboard?.averageRating ? s.dashboard.averageRating.toFixed(1) : '—',
     ],
   ];
   return (
@@ -70,7 +80,7 @@ export default function OwnerDashboard() {
       <div className="grid-2 dashboard-section">
         <section className="panel">
           <h3>Property views per month</h3>
-          <p className="fine-print">Illustrative monthly distribution of total mock views</p>
+          <p className="fine-print">Recorded property views by month</p>
           <div className="chart">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={chart}>

@@ -1,0 +1,181 @@
+[
+  {
+    "number": 1,
+    "message": "chore(backend): initialize configuration validation and shared API utilities",
+    "files": [
+      "backend/.env.example",
+      "backend/.gitignore",
+      "backend/.prettierignore",
+      "backend/.prettierrc.json",
+      "backend/config/db.js",
+      "backend/config/env.js",
+      "backend/middleware/errorMiddleware.js",
+      "backend/middleware/notFoundMiddleware.js",
+      "backend/middleware/validationMiddleware.js",
+      "backend/package-lock.json",
+      "backend/package.json",
+      "backend/utils/ApiError.js",
+      "backend/utils/asyncHandler.js",
+      "backend/utils/constants.js",
+      "backend/utils/pagination.js",
+      "backend/utils/respond.js",
+      "backend/validators/schemas.js"
+    ]
+  },
+  {
+    "number": 2,
+    "message": "feat(auth): add JWT authentication and private renter owner profiles",
+    "files": [
+      "backend/controllers/authController.js",
+      "backend/controllers/profileController.js",
+      "backend/middleware/authMiddleware.js",
+      "backend/middleware/roleMiddleware.js",
+      "backend/models/OwnerProfile.js",
+      "backend/models/RenterProfile.js",
+      "backend/models/User.js",
+      "backend/services/mailService.js",
+      "backend/utils/generateToken.js"
+    ]
+  },
+  {
+    "number": 3,
+    "message": "feat(properties): implement listings search privacy and view tracking",
+    "files": [
+      "backend/controllers/propertyController.js",
+      "backend/models/Property.js",
+      "backend/models/PropertyView.js",
+      "backend/services/propertyService.js"
+    ]
+  },
+  {
+    "number": 4,
+    "message": "feat(media): add protected Cloudinary uploads and cleanup retries",
+    "files": [
+      "backend/config/cloudinary.js",
+      "backend/controllers/imageController.js",
+      "backend/middleware/uploadMiddleware.js",
+      "backend/services/cleanupService.js",
+      "backend/services/imageService.js"
+    ]
+  },
+  {
+    "number": 5,
+    "message": "feat(bookings): add favorites and transactional booking capacity",
+    "files": [
+      "backend/controllers/bookingController.js",
+      "backend/controllers/favoriteController.js",
+      "backend/models/Booking.js",
+      "backend/models/Favorite.js"
+    ]
+  },
+  {
+    "number": 6,
+    "message": "feat(messages): implement participant-scoped conversations and messages",
+    "files": [
+      "backend/controllers/messageController.js",
+      "backend/models/Conversation.js",
+      "backend/models/Message.js"
+    ]
+  },
+  {
+    "number": 7,
+    "message": "feat(reviews): enforce completed stays and recalculate property ratings",
+    "files": [
+      "backend/controllers/reviewController.js",
+      "backend/models/Review.js"
+    ]
+  },
+  {
+    "number": 8,
+    "message": "feat(dashboards): add notifications recommendations and owner analytics",
+    "files": [
+      "backend/controllers/dashboardController.js",
+      "backend/controllers/notificationController.js",
+      "backend/models/Notification.js",
+      "backend/services/notificationService.js",
+      "backend/services/recommendationService.js"
+    ]
+  },
+  {
+    "number": 9,
+    "message": "test(backend): wire API routes add seed data and integration coverage",
+    "files": [
+      "backend/README.md",
+      "backend/app.js",
+      "backend/routes/index.js",
+      "backend/scripts/localDemo.js",
+      "backend/seeds/data.js",
+      "backend/seeds/seed.js",
+      "backend/server.js",
+      "backend/tests/api.test.js",
+      "backend/tests/startup.test.js"
+    ]
+  },
+  {
+    "number": 10,
+    "message": "feat(frontend): connect authentication and service state to the API",
+    "files": [
+      "frontend/src/components/common/ApiDataBoundary.jsx",
+      "frontend/src/services/adapters.js",
+      "frontend/src/services/dashboardService.js",
+      "frontend/src/services/propertyImageService.js",
+      "frontend/src/services/remoteActions.js",
+      "frontend/src/services/remoteStore.js",
+      "frontend/.env.example",
+      "frontend/src/context/AuthContext.jsx",
+      "frontend/src/context/NotificationContext.jsx",
+      "frontend/src/main.jsx",
+      "frontend/src/services/actions.js",
+      "frontend/src/services/api.js",
+      "frontend/src/services/authService.js",
+      "frontend/src/services/bookingService.js",
+      "frontend/src/services/favoriteService.js",
+      "frontend/src/services/listingActions.js",
+      "frontend/src/services/messageService.js",
+      "frontend/src/services/notificationService.js",
+      "frontend/src/services/propertyService.js",
+      "frontend/src/services/reviewService.js",
+      "frontend/src/services/store.js"
+    ]
+  },
+  {
+    "number": 11,
+    "message": "feat(frontend): connect marketplace and dashboard workflows",
+    "files": [
+      "frontend/src/assets/photography.js",
+      "frontend/src/components/property/CommunityReviews.jsx",
+      "frontend/src/hooks/usePropertySearch.js",
+      "frontend/src/assets/application.css",
+      "frontend/src/components/booking/BookingModal.jsx",
+      "frontend/src/components/booking/BookingsPage.jsx",
+      "frontend/src/components/forms/ProfilePage.jsx",
+      "frontend/src/components/messaging/MessagesPage.jsx",
+      "frontend/src/components/property/PropertyCard.jsx",
+      "frontend/src/components/property/Reviews.jsx",
+      "frontend/src/pages/owner/Dashboard.jsx",
+      "frontend/src/pages/owner/Properties.jsx",
+      "frontend/src/pages/owner/PropertyForm.jsx",
+      "frontend/src/pages/owner/Reviews.jsx",
+      "frontend/src/pages/public/AuthPage.jsx",
+      "frontend/src/pages/public/Home.jsx",
+      "frontend/src/pages/public/MapPage.jsx",
+      "frontend/src/pages/public/Properties.jsx",
+      "frontend/src/pages/public/PropertyDetails.jsx",
+      "frontend/src/pages/renter/Dashboard.jsx"
+    ]
+  },
+  {
+    "number": 12,
+    "message": "refactor(frontend): remove mock data and document verified setup",
+    "files": [
+      "frontend/README.md",
+      "frontend/src/data/mockData.js",
+      "frontend/src/utils/search.test.js",
+      "frontend/src/utils/session.test.js",
+      "frontend/src/utils/workflows.test.js",
+      "docs/COMMIT_PLAN.md",
+      "docs/commit-plan.json",
+      "docs/VALIDATION.md"
+    ]
+  }
+]

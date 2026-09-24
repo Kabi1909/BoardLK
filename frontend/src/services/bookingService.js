@@ -1,18 +1,16 @@
-import api, { isMock } from './api';
-import { collection, database } from './store';
+import api, { getSession } from './api.js';
+
+import { bookingFromApi } from './adapters.js';
+import { mutate } from './remoteStore.js';
 export const bookingService = {
-  async list() {
-    return isMock ? database.get().bookings : (await api.get('/bookings')).data;
+  async list(params = {}) {
+    return (
+      await api.get(getSession()?.user.role === 'owner' ? '/owner/bookings' : '/bookings/my', {
+        params,
+      })
+    ).data.data.map(bookingFromApi);
   },
-  async create(data) {
-    return isMock ? collection('bookings').add(data) : (await api.post('/bookings', data)).data;
-  },
-  async update(id, data) {
-    return isMock
-      ? collection('bookings').update(id, data)
-      : (await api.patch('/bookings/' + id, data)).data;
-  },
-  async remove(id) {
-    return isMock ? collection('bookings').remove(id) : api.delete('/bookings/' + id);
-  },
+  create: (data) => mutate('post', '/bookings', data),
+  update: (id, data) => mutate('patch', '/bookings/' + id + '/status', data),
+  cancel: (id) => mutate('patch', '/bookings/' + id + '/cancel'),
 };

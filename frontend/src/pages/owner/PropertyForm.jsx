@@ -4,7 +4,9 @@ import { Link, useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, Check, Upload, Trash2, ImagePlus, Save, Send } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useStore } from '../../hooks/useStore';
-import { collection } from '../../services/store';
+
+import { saveProperty } from '../../services/remoteActions';
+
 import { uid, money } from '../../utils/format';
 import { validateProperty } from '../../utils/validation';
 import { readImage } from '../../utils/images';
@@ -114,7 +116,7 @@ export default function PropertyForm() {
       window.scrollTo(0, 0);
     }
   }
-  function save(status) {
+  async function save(status) {
     setError('');
     if (status !== 'Draft') {
       for (let i = 0; i < 7; i++) {
@@ -131,6 +133,7 @@ export default function PropertyForm() {
       setErrors({ title: 'Enter a title of at least 5 characters to save a draft.' });
       return;
     }
+    setBusy(true);
     try {
       const numeric = [
         'lat',
@@ -153,11 +156,14 @@ export default function PropertyForm() {
         rating: existing?.rating || 0,
         createdAt: existing?.createdAt || new Date().toISOString(),
       };
-      if (existing) collection('properties').update(existing.id, property);
-      else collection('properties').add(property);
+      await saveProperty(property, existing?.id || f.serverId);
       navigate('/owner/properties');
     } catch (e) {
       setError(e.message);
+      if (e.propertyDraft) setF((current) => ({ ...current, ...e.propertyDraft }));
+      if (e.fields) setErrors(e.fields);
+    } finally {
+      setBusy(false);
     }
   }
   async function upload(event) {
@@ -258,6 +264,12 @@ export default function PropertyForm() {
                 {field('lng', 'Longitude', 'number', 'Example: 80.4982 for Vavuniya')}
               </div>
               {field('nearby', 'Nearby university / workplace')}
+              <Checkbox
+                label="Show exact address and map location publicly"
+                checked={!!f.publicLocationEnabled}
+                onChange={(e) => set('publicLocationEnabled', e.target.checked)}
+              />
+              <p className="fine-print">Otherwise, visitors see only an approximate location.</p>
             </>
           )}
           {step === 2 && (

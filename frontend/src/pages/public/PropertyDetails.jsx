@@ -3,7 +3,9 @@ import { Link, useParams, useNavigate } from 'react-router-dom';
 import { MapPin, Share2, MessageCircle, Check, ArrowRight } from 'lucide-react';
 import { useStore } from '../../hooks/useStore';
 import { useAuth } from '../../context/AuthContext';
-import { database } from '../../services/store';
+
+import { loadProperty } from '../../services/remoteStore';
+
 import { startConversation } from '../../services/actions';
 import { money } from '../../utils/format';
 import {
@@ -27,17 +29,7 @@ export default function PropertyDetails() {
   const [shared, setShared] = useState('');
   const p = s.properties.find((p) => p.id === id);
   useEffect(() => {
-    if (!p) return;
-    database.update((s) => ({
-      ...s,
-      properties: s.properties.map((x) => (x.id === id ? { ...x, views: x.views + 1 } : x)),
-      recent: user
-        ? {
-            ...s.recent,
-            [user.id]: [id, ...(s.recent[user.id] || []).filter((x) => x !== id)].slice(0, 8),
-          }
-        : s.recent,
-    }));
+    loadProperty(id).catch((e) => setShared(e.message));
   }, [id, user?.id]);
   if (!p || (p.status !== 'Published' && p.ownerId !== user?.id))
     return (
@@ -56,7 +48,10 @@ export default function PropertyDetails() {
   const authorize = (fn) => {
     if (!user) navigate('/login', { state: { from: '/properties/' + id } });
     else if (user.role !== 'renter') navigate('/unauthorized');
-    else fn();
+    else
+      Promise.resolve()
+        .then(fn)
+        .catch((e) => setShared(e.message));
   };
   return (
     <div className="container detail-page">
@@ -176,9 +171,13 @@ export default function PropertyDetails() {
             ) : (
               <p>No reviews yet. Be the first to share your experience.</p>
             )}
-            {user?.role === 'renter' && !reviews.some((r) => r.renterId === user.id) && (
-              <ReviewForm property={p} />
-            )}
+            {user?.role === 'renter' &&
+              s.bookings.some(
+                (b) =>
+                  b.propertyId === p.id &&
+                  b.status === 'Completed' &&
+                  !reviews.some((r) => r.bookingId === b.id),
+              ) && <ReviewForm property={p} />}
           </section>
         </div>
         <aside>
@@ -203,7 +202,11 @@ export default function PropertyDetails() {
             <div className="divider" />
             <button
               className="btn full-width"
-              disabled={!p.spaces || p.status !== 'Published'}
+              disabled={
+                !p.spaces ||
+                p.status !== 'Published' ||
+                p.availabilityStatus === 'Temporarily Unavailable'
+              }
               onClick={() => authorize(() => setBooking(true))}
             >
               Request booking <ArrowRight size={16} />
@@ -212,7 +215,9 @@ export default function PropertyDetails() {
               className="btn secondary full-width"
               onClick={() =>
                 authorize(() =>
-                  navigate('/renter/messages?conversation=' + startConversation(user, p)),
+                  Promise.resolve(startConversation(user, p)).then((conversation) =>
+                    navigate('/renter/messages?conversation=' + conversation),
+                  ),
                 )
               }
             >

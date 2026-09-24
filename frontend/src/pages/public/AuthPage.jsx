@@ -2,10 +2,11 @@ import { useState } from 'react';
 import { Link, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { Eye, EyeOff, ArrowRight, ShieldCheck, House } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+
 import { authService } from '../../services/authService';
 import { FormInput, FormSelect, Checkbox } from '../../components/forms/Fields';
 import { emailValid, phoneValid, passwordValid } from '../../utils/validation';
-import { photos } from '../../data/mockData';
+import { photos } from '../../assets/photography';
 export default function AuthPage({ mode = 'login' }) {
   const [params] = useSearchParams();
   const { login, register } = useAuth();
@@ -25,7 +26,7 @@ export default function AuthPage({ mode = 'login' }) {
   const [success, setSuccess] = useState('');
   const [busy, setBusy] = useState(false);
   const [show, setShow] = useState(false);
-  const [resetToken, setResetToken] = useState('');
+
   const set = (key, value) => setForm({ ...form, [key]: value });
   const titles = {
     login: 'Welcome back.',
@@ -65,17 +66,15 @@ export default function AuthPage({ mode = 'login' }) {
         await register(form);
         navigate('/' + form.role + '/dashboard', { replace: true });
       } else if (mode === 'forgot') {
-        const token = await authService.forgot(form.email);
-        setResetToken(token || '');
-        setSuccess(
-          'If this email is registered, a reset link is ready. This demo displays the link here instead of sending email.',
-        );
+        await authService.forgot(form.email);
+        setSuccess('If this email is registered, a reset link will be sent to your inbox.');
       } else {
         await authService.reset(params.get('token'), form.password);
         setSuccess('Password updated. You can now sign in.');
       }
     } catch (err) {
       setError(err.message);
+      if (err.fields) setErrors({ ...err.fields, confirm: err.fields.confirmPassword });
     } finally {
       setBusy(false);
     }
@@ -208,11 +207,7 @@ export default function AuthPage({ mode = 'login' }) {
                 {success}
               </div>
             )}
-            {resetToken && (
-              <Link className="text-link" to={'/reset-password?token=' + resetToken}>
-                Open demo reset link →
-              </Link>
-            )}
+
             {!(mode === 'reset' && success) && (
               <button className="btn full-width" disabled={busy}>
                 {busy
@@ -228,19 +223,7 @@ export default function AuthPage({ mode = 'login' }) {
               </button>
             )}
           </form>
-          {mode === 'login' && (
-            <div className="demo-note">
-              <b>Explore with a demo account</b>
-              <p>
-                Renter: renter@boardlk.demo
-                <br />
-                Owner: owner@boardlk.demo
-                <br />
-                Password for both: <strong>BoardLK123</strong>
-              </p>
-              <small>Demo only. Please don’t use a real password.</small>
-            </div>
-          )}
+
           {mode !== 'login' && (
             <p className="auth-bottom">
               Already have an account?{' '}

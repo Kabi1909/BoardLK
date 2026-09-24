@@ -1,20 +1,9 @@
-import api, { isMock } from './api';
-import { collection, database } from './store';
+import api from './api.js';
+import { mutate, markConversationRead } from './remoteStore.js';
 export const messageService = {
-  async list() {
-    return isMock ? database.get().conversations : (await api.get('/conversations')).data;
-  },
-  async create(data) {
-    return isMock
-      ? collection('conversations').add(data)
-      : (await api.post('/conversations', data)).data;
-  },
-  async update(id, data) {
-    return isMock
-      ? collection('conversations').update(id, data)
-      : (await api.patch('/conversations/' + id, data)).data;
-  },
-  async remove(id) {
-    return isMock ? collection('conversations').remove(id) : api.delete('/conversations/' + id);
-  },
+  list: async (params) => (await api.get('/conversations', { params })).data,
+  create: (data) => mutate('post', '/conversations', data),
+  messages: async (id, params) => (await api.get('/messages/' + id, { params })).data,
+  send: (data) => mutate('post', '/messages', data),
+  markRead: markConversationRead,
 };

@@ -3,7 +3,9 @@ import { useSearchParams, Link } from 'react-router-dom';
 import { Send, ArrowLeft, MessageCircle, Search } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useStore } from '../../hooks/useStore';
-import { database } from '../../services/store';
+
+import { markConversationRead } from '../../services/remoteStore';
+
 import { sendMessage } from '../../services/actions';
 import { Avatar, EmptyState } from '../common/UI';
 import { MessageBubble, ConversationList } from './MessageComponents';
@@ -24,12 +26,7 @@ export default function MessagesPage() {
   const property = s.properties.find((p) => p.id === conversation?.propertyId);
   useEffect(() => {
     if (conversation && !conversation.readBy?.includes(user.id))
-      database.update((s) => ({
-        ...s,
-        conversations: s.conversations.map((c) =>
-          c.id === conversation.id ? { ...c, readBy: [...(c.readBy || []), user.id] } : c,
-        ),
-      }));
+      markConversationRead(conversation.id).catch((e) => setError(e.message));
   }, [conversation, user.id]);
   useEffect(() => {
     end.current?.scrollIntoView({ block: 'nearest' });
@@ -126,10 +123,10 @@ export default function MessagesPage() {
               )}
               <form
                 className="message-compose"
-                onSubmit={(e) => {
+                onSubmit={async (e) => {
                   e.preventDefault();
                   try {
-                    sendMessage(user, conversation.id, text);
+                    await sendMessage(user, conversation.id, text);
                     setText('');
                     setError('');
                   } catch (e) {

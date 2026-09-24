@@ -16,10 +16,10 @@ export default function OwnerProperties() {
   const own = s.properties.filter(
     (p) => p.ownerId === user.id && (filter === 'All' || p.status === filter),
   );
-  function action(property, type) {
+  async function action(property, type) {
     setError('');
     try {
-      manageListing(user, property.id, type);
+      await manageListing(user, property.id, type);
     } catch (error) {
       setError(error.message);
     } finally {

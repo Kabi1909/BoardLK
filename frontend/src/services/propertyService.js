@@ -1,18 +1,16 @@
-import api, { isMock } from './api';
-import { collection, database } from './store';
+import api from './api.js';
+import { propertyFromApi } from './adapters.js';
+import { saveProperty } from './remoteActions.js';
+import { mutate, loadProperty } from './remoteStore.js';
 export const propertyService = {
-  async list() {
-    return isMock ? database.get().properties : (await api.get('/properties')).data;
+  async list(params = {}) {
+    return (await api.get('/properties', { params })).data.data.map(propertyFromApi);
   },
-  async create(data) {
-    return isMock ? collection('properties').add(data) : (await api.post('/properties', data)).data;
+  async search(params = {}) {
+    return (await api.get('/properties', { params })).data;
   },
-  async update(id, data) {
-    return isMock
-      ? collection('properties').update(id, data)
-      : (await api.patch('/properties/' + id, data)).data;
-  },
-  async remove(id) {
-    return isMock ? collection('properties').remove(id) : api.delete('/properties/' + id);
-  },
+  detail: loadProperty,
+  create: (data) => saveProperty(data),
+  update: (id, data) => saveProperty(data, id),
+  remove: (id) => mutate('delete', '/properties/' + id),
 };

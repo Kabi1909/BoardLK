@@ -1,18 +1,10 @@
-import api, { isMock } from './api';
-import { collection, database } from './store';
+import api from './api.js';
+import { mutate } from './remoteStore.js';
 export const reviewService = {
-  async list() {
-    return isMock ? database.get().reviews : (await api.get('/reviews')).data;
-  },
-  async create(data) {
-    return isMock ? collection('reviews').add(data) : (await api.post('/reviews', data)).data;
-  },
-  async update(id, data) {
-    return isMock
-      ? collection('reviews').update(id, data)
-      : (await api.patch('/reviews/' + id, data)).data;
-  },
-  async remove(id) {
-    return isMock ? collection('reviews').remove(id) : api.delete('/reviews/' + id);
-  },
+  list: async (propertyId, params) =>
+    (await api.get('/reviews/property/' + propertyId, { params })).data,
+  create: (data) => mutate('post', '/reviews', data),
+  update: (id, data) => mutate('put', '/reviews/' + id, data),
+  remove: (id) => mutate('delete', '/reviews/' + id),
+  reply: (id, reply) => mutate('post', '/reviews/' + id + '/reply', { reply }),
 };
