@@ -5,10 +5,20 @@ import ApiError from '../utils/ApiError.js';
 export async function list(req, res) {
   const filter = { user: req.user._id },
     paging = pagination(req.query);
+  if (req.query.unreadOnly !== undefined) {
+    if (!['true', 'false'].includes(req.query.unreadOnly))
+      throw new ApiError(422, 'unreadOnly must be true or false.');
+    if (req.query.unreadOnly === 'true') filter.isRead = false;
+  }
+  if (req.query.type !== undefined) {
+    if (!Notification.schema.path('type').enumValues.includes(req.query.type))
+      throw new ApiError(422, 'Invalid notification type.');
+    filter.type = req.query.type;
+  }
   const [items, total, unreadCount] = await Promise.all([
     Notification.find(filter).sort({ createdAt: -1 }).skip(paging.skip).limit(paging.limit),
     Notification.countDocuments(filter),
-    Notification.countDocuments({ ...filter, isRead: false }),
+    Notification.countDocuments({ user: req.user._id, isRead: false }),
   ]);
   return success(res, items, 'Notifications loaded.', 200, {
     pagination: pageMeta(total, paging),
