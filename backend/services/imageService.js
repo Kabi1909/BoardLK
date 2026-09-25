@@ -24,20 +24,24 @@ export const imageStorage = {
           transformation: [{ width: 2000, height: 2000, crop: 'limit' }],
         },
         (error, result) => {
-          if (error) return reject(new ApiError(503, 'Image upload failed. Please retry.'));
+          if (error || !result?.secure_url || !result?.public_id)
+            return reject(new ApiError(503, 'Image upload failed. Please retry.'));
           resolve({ url: result.secure_url, publicId: result.public_id });
         },
       );
+      stream.on('error', () => reject(new ApiError(503, 'Image upload failed. Please retry.')));
       stream.end(file.buffer);
     });
   },
   async remove(publicId) {
     if (!publicId) return;
     try {
-      await getCloudinary().uploader.destroy(publicId, {
+      const result = await getCloudinary().uploader.destroy(publicId, {
         resource_type: 'image',
         invalidate: true,
       });
+      if (!['ok', 'not found'].includes(result?.result))
+        throw new Error('Image provider did not confirm deletion.');
     } catch {
       throw new ApiError(503, 'Image deletion failed. Please retry.');
     }

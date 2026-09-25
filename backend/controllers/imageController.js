@@ -4,6 +4,7 @@ import ApiError from '../utils/ApiError.js';
 import { ownedProperty, serializeProperty } from '../services/propertyService.js';
 import { validateImage } from '../services/imageService.js';
 import { success } from '../utils/respond.js';
+import { transaction } from '../config/db.js';
 export async function checkOwner(req, res, next) {
   req.property = await ownedProperty(req.params.id, req.user);
   next();
@@ -70,18 +71,33 @@ export async function profilePhoto(req, res) {
   if (!req.file) throw new ApiError(422, 'Choose a profile image.');
   validateImage(req.file);
   const image = await req.app.locals.imageStorage.upload(req.file, 'profiles/' + req.user._id);
-  const old = req.user.profileImage?.publicId;
+  let old;
   try {
-    await User.updateOne({ _id: req.user._id }, { $set: { profileImage: image } });
+    await transaction(async (session) => {
+      const user = await User.findOne({ _id: req.user._id, status: 'active' }).session(session);
+      if (!user) throw new ApiError(401, 'Account is unavailable.');
+      old = user.profileImage?.publicId;
+      user.profileImage = image;
+      if (old) user.pendingImageCleanup.addToSet(old);
+      await user.save({ session });
+    });
   } catch (error) {
-    await req.app.locals.imageStorage.remove(image.publicId);
+    try {
+      await req.app.locals.imageStorage.remove(image.publicId);
+    } catch {
+      await User.updateOne(
+        { _id: req.user._id },
+        { $addToSet: { pendingImageCleanup: image.publicId } },
+      );
+    }
     throw error;
   }
   if (old) {
     try {
       await req.app.locals.imageStorage.remove(old);
+      await User.updateOne({ _id: req.user._id }, { $pull: { pendingImageCleanup: old } });
     } catch {
-      await User.updateOne({ _id: req.user._id }, { $addToSet: { pendingImageCleanup: old } });
+      // The transaction already queued cleanup for retry by the background worker.
     }
   }
   return success(res, image, 'Profile photo updated.');
