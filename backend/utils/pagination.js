@@ -1,5 +1,14 @@
 import ApiError from './ApiError.js';
 export function pagination(query = {}) {
+  for (const key of ['page', 'limit']) {
+    if (
+      query[key] !== undefined &&
+      (!['string', 'number'].includes(typeof query[key]) || String(query[key]).trim() === '')
+    )
+      throw new ApiError(422, 'Invalid pagination.', [
+        { field: key, message: 'Use a single positive integer.' },
+      ]);
+  }
   const page = Number(query.page ?? 1),
     limit = Number(query.limit ?? 12);
   if (
