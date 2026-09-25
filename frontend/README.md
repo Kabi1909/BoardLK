@@ -5,9 +5,14 @@ React/Vite interface for Sri Lankan boarding discovery. The UI connects to the B
 ## Run
 
 ```sh
+cd frontend
 npm install
-npm run dev
+npm start
 ```
+
+Run these commands from the repository folder. If your terminal is already in `frontend`, skip `cd frontend`. Install dependencies once after cloning, and again when dependencies change; you do not need to run `npm install` every time.
+
+`npm start` starts Vite and automatically opens the frontend in your default browser. Set Microsoft Edge as your Windows default browser if you want it to open in Edge. `npm run dev` and `npm run start` work the same way. Bare `npm run` only lists the available scripts; it does not start the application. Press Ctrl+C in the terminal to stop the server.
 
 Start the backend first; see ../backend/README.md. Copy .env.example to .env if the API is not at http://localhost:5000/api. The sole frontend setting is VITE_API_URL. Never put backend secrets in frontend variables.
 
