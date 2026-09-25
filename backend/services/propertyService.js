@@ -6,7 +6,15 @@ import Favorite from '../models/Favorite.js';
 import Booking from '../models/Booking.js';
 import Notification from '../models/Notification.js';
 import ApiError from '../utils/ApiError.js';
-import { PUBLIC_FILTER, FACILITIES, availability } from '../utils/constants.js';
+import {
+  PUBLIC_FILTER,
+  FACILITIES,
+  DISTRICTS,
+  PROPERTY_TYPES,
+  ROOM_TYPES,
+  GENDERS,
+  availability,
+} from '../utils/constants.js';
 import { transaction } from '../config/db.js';
 export const exactFields = '+address +latitude +longitude';
 export function serializeProperty(doc, own = false) {
@@ -87,9 +95,17 @@ export async function notifyUnavailable(property, session) {
 }
 export function buildPropertyQuery(query) {
   const filter = { ...PUBLIC_FILTER };
+  const options = {
+    district: DISTRICTS,
+    propertyType: PROPERTY_TYPES,
+    roomType: ROOM_TYPES,
+    genderPreference: GENDERS,
+  };
   for (const key of ['district', 'city', 'propertyType', 'roomType', 'genderPreference'])
     if (query[key]) {
       if (typeof query[key] !== 'string' || query[key].length > 200)
+        throw new ApiError(422, 'Invalid ' + key + '.');
+      if (options[key] && !options[key].includes(query[key]))
         throw new ApiError(422, 'Invalid ' + key + '.');
       filter[key] = query[key];
     }
@@ -107,6 +123,8 @@ export function buildPropertyQuery(query) {
     ['minRating', 'averageRating', '$gte'],
   ]) {
     if (query[key] !== undefined && query[key] !== '') {
+      if (!['string', 'number'].includes(typeof query[key]) || String(query[key]).trim() === '')
+        throw new ApiError(422, 'Invalid ' + key + '.');
       const value = Number(query[key]);
       if (!Number.isFinite(value) || value < 0 || (key === 'minRating' && value > 5))
         throw new ApiError(422, 'Invalid ' + key + '.');
