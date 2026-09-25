@@ -5,6 +5,7 @@ import { serializeProperty, exactFields } from '../services/propertyService.js';
 import { success } from '../utils/respond.js';
 import { pagination, pageMeta } from '../utils/pagination.js';
 import ApiError from '../utils/ApiError.js';
+import { transaction } from '../config/db.js';
 export async function list(req, res) {
   const paging = pagination(req.query),
     filter = { renter: req.user._id };
@@ -28,13 +29,21 @@ export async function list(req, res) {
   );
 }
 export async function add(req, res) {
-  if (!(await Property.exists({ _id: req.params.propertyId, ...PUBLIC_FILTER })))
-    throw new ApiError(404, 'Property not found.');
-  const favorite = await Favorite.findOneAndUpdate(
-    { renter: req.user._id, property: req.params.propertyId },
-    { $setOnInsert: { renter: req.user._id, property: req.params.propertyId } },
-    { upsert: true, new: true },
-  );
+  let favorite;
+  await transaction(async (session) => {
+    // Serialize saving with listing deletion and status changes.
+    const property = await Property.findOneAndUpdate(
+      { _id: req.params.propertyId, ...PUBLIC_FILTER },
+      { $inc: { __v: 1 } },
+      { session },
+    );
+    if (!property) throw new ApiError(404, 'Property not found.');
+    favorite = await Favorite.findOneAndUpdate(
+      { renter: req.user._id, property: req.params.propertyId },
+      { $setOnInsert: { renter: req.user._id, property: req.params.propertyId } },
+      { upsert: true, new: true, session },
+    );
+  });
   return success(res, favorite, 'Saved to favorites.');
 }
 export async function remove(req, res) {
