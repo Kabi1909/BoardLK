@@ -554,3 +554,60 @@ test('expired JWTs are rejected even with a valid signature', async () => {
   });
   assert.equal((await api('get', '/auth/me', { token })).status, 401);
 });
+
+test('readiness verifies MongoDB and liveness reports the process', async () => {
+  assert.equal((await api('get', '/health/ready')).body.status, 'ready');
+  assert.equal((await api('get', '/health/live')).body.status, 'alive');
+});
+
+test('notification filters preserve ownership and total unread count', async () => {
+  const all = await api('get', '/notifications', owner);
+  const filtered = await api('get', '/notifications?unreadOnly=true&type=new_message', owner);
+  assert.equal(filtered.status, 200);
+  assert.equal(filtered.body.unreadCount, all.body.unreadCount);
+  assert.ok(filtered.body.data.length > 0);
+  assert.ok(
+    filtered.body.data.every(
+      (item) => item.type === 'new_message' && !item.isRead && item.user === owner.user._id,
+    ),
+  );
+  assert.equal((await api('get', '/notifications?unreadOnly=invalid', owner)).status, 422);
+  assert.equal((await api('get', '/notifications?type=invalid', owner)).status, 422);
+});
+
+test('deleted properties cannot acquire new favorites', async () => {
+  const count = await Favorite.countDocuments({ property: property._id });
+  assert.equal((await api('post', '/favorites/' + property._id, renter)).status, 404);
+  assert.equal(await Favorite.countDocuments({ property: property._id }), count);
+});
+
+test('concurrent profile photo replacements retain one image and clean superseded uploads', async () => {
+  const adapter = app.locals.imageStorage;
+  const uploaded = [],
+    removed = [];
+  app.locals.imageStorage = {
+    upload: async () => {
+      const publicId = crypto.randomUUID();
+      uploaded.push(publicId);
+      return { publicId, url: 'https://example.com/' + publicId + '.png' };
+    },
+    remove: async (publicId) => {
+      removed.push(publicId);
+    },
+  };
+  try {
+    const results = await Promise.all([
+      api('post', '/owner/profile/photo', owner).attach('image', png, 'first.png'),
+      api('post', '/owner/profile/photo', owner).attach('image', png, 'second.png'),
+    ]);
+    for (const result of results) assert.equal(result.status, 200, JSON.stringify(result.body));
+    const user = await User.findById(owner.user._id);
+    assert.ok(uploaded.includes(user.profileImage.publicId));
+    assert.ok(!removed.includes(user.profileImage.publicId));
+    for (const id of uploaded.filter((id) => id !== user.profileImage.publicId))
+      assert.ok(removed.includes(id));
+    assert.equal(user.pendingImageCleanup.length, 0);
+  } finally {
+    app.locals.imageStorage = adapter;
+  }
+});
