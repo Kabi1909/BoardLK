@@ -14,13 +14,15 @@ Requires Node.js 22+ and npm. For persistent data, use MongoDB Atlas or a local 
 ```sh
 cd backend
 npm install
-cp .env.example .env
-# Configure MONGO_URI and a random JWT_SECRET of at least 32 characters.
+npm run setup
+# Configure MONGO_URI in backend/.env.
 npm run seed
 npm run dev
 ```
 
-On PowerShell use `Copy-Item .env.example .env`. Generate a secret with `node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"` and keep it only in your ignored .env.
+`npm run setup` works on Windows, macOS and Linux. It creates `.env` from the example when missing and generates a cryptographically random JWT signing secret without printing it. Existing nonempty secrets and other settings are preserved. `.env` is ignored by Git. Never copy its signing secret into the frontend or commit it.
+
+Registration and login automatically issue account-specific JWT access tokens. You do not need to manually create or paste tokens; the frontend attaches them to authenticated API requests.
 
 The seed command requires a database name ending in `_demo`, refuses production mode, and skips a nonempty database. `npm run seed -- --reset` explicitly replaces demo records.
 
@@ -37,10 +39,24 @@ In another terminal:
 ```sh
 cd frontend
 npm install
-npm run dev
+npm start
 ```
 
-Open http://localhost:5173. The frontend is API-only. It has no mock data fallback. Its only environment variable is `VITE_API_URL=http://localhost:5000/api`.
+The frontend opens automatically in your default browser at http://localhost:5173. Set Edge as the Windows default browser to open it there. `npm run dev` remains available. The frontend is API-only. It has no mock data fallback. Its only environment variable is `VITE_API_URL=http://localhost:5000/api`.
+
+## Health checks and validation
+
+- `GET /api/health/live`: process liveness, HTTP 200 while Express can respond.
+- `GET /api/health`: HTTP 200 when Mongoose is connected, otherwise 503.
+- `GET /api/health/ready`: confirms the database can answer a ping, otherwise 503. Responses never contain connection credentials.
+
+Production frontend origins must use HTTPS. Origins must be exact origins without paths or trailing slashes. Invalid MongoDB schemes, nonpositive JWT expiry durations and invalid numeric configuration fail at startup.
+
+Booking move-in dates and profile birth dates use the `Asia/Colombo` calendar on both the frontend and backend, independently of the server or browser timezone. View analytics retain their documented UTC day boundary.
+
+Notification lists accept `unreadOnly=true` and supported `type` values, such as `new_message` or `booking_accepted`. Pagination totals reflect the filtered results; `unreadCount` always reflects all unread notifications for the authenticated account.
+
+Listing favorites participate in MongoDB transactions. Concurrent profile photo replacements queue superseded photos for cleanup, and provider deletion failures remain queued for retry. Conversation lists aggregate unread counts in a single query.
 
 ## Environment
 
