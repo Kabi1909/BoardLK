@@ -17,6 +17,7 @@ import * as review from '../controllers/reviewController.js';
 import * as notification from '../controllers/notificationController.js';
 import * as dashboard from '../controllers/dashboardController.js';
 import * as image from '../controllers/imageController.js';
+import * as health from '../controllers/healthController.js';
 export default function createRoutes() {
   const r = Router(),
     a = asyncHandler,
@@ -35,9 +36,9 @@ export default function createRoutes() {
       errors: [],
     },
   });
-  r.get('/health', (req, res) =>
-    res.json({ success: true, service: 'BoardLK API', status: 'healthy' }),
-  );
+  r.get('/health', health.health);
+  r.get('/health/live', health.live);
+  r.get('/health/ready', a(health.ready));
   r.post('/auth/register', authLimit, v(schemas.register), a(auth.register));
   r.post('/auth/login', authLimit, v(schemas.login), a(auth.login));
   r.get('/auth/me', authenticate, a(auth.me));
