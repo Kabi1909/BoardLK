@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { sriLankaDate } from '../utils/date.js';
 import {
   ROLES,
   DISTRICTS,
@@ -59,7 +60,7 @@ export const profile = z.strictObject({
   gender: z.enum(['Male', 'Female', 'Other', 'Prefer not to say', '']).optional(),
   dateOfBirth: z.iso
     .date()
-    .refine((v) => new Date(v) <= new Date(), 'Birth date cannot be in the future.')
+    .refine((v) => v <= sriLankaDate(), 'Birth date cannot be in the future.')
     .optional(),
   universityOrWorkplace: text().optional(),
   preferredDistrict: z.enum([...DISTRICTS, '']).optional(),
@@ -122,10 +123,7 @@ export const booking = z
     propertyId: id,
     moveInDate: z.iso
       .date()
-      .refine(
-        (v) => v >= new Date().toISOString().slice(0, 10),
-        'Move-in date must be today or later.',
-      ),
+      .refine((v) => v >= sriLankaDate(), 'Move-in date must be today or later.'),
     numberOfOccupants: positive,
     stayDuration: z.enum(['1 month', '3 months', '6 months', '1 year', 'Long term', 'Custom']),
     customStayDuration: text(200).optional(),
