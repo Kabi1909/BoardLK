@@ -10,5 +10,5 @@ const schema = new mongoose.Schema(
   { timestamps: true },
 );
 schema.index({ conversation: 1, createdAt: -1 });
-schema.index({ receiver: 1, readAt: 1 });
+schema.index({ receiver: 1, readAt: 1, conversation: 1 });
 export default mongoose.model('Message', schema);

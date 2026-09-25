@@ -51,16 +51,23 @@ export async function conversations(req, res) {
       .limit(paging.limit),
     Conversation.countDocuments(filter),
   ]);
-  const data = await Promise.all(
-    items.map(async (c) => ({
-      ...c.toObject(),
-      unreadCount: await Message.countDocuments({
-        conversation: c._id,
-        receiver: req.user._id,
-        readAt: null,
-      }),
-    })),
-  );
+  const counts = items.length
+    ? await Message.aggregate([
+        {
+          $match: {
+            conversation: { $in: items.map((item) => item._id) },
+            receiver: req.user._id,
+            readAt: null,
+          },
+        },
+        { $group: { _id: '$conversation', count: { $sum: 1 } } },
+      ])
+    : [];
+  const unread = new Map(counts.map((item) => [String(item._id), item.count]));
+  const data = items.map((item) => ({
+    ...item.toObject(),
+    unreadCount: unread.get(String(item._id)) || 0,
+  }));
   return success(res, data, 'Conversations loaded.', 200, { pagination: pageMeta(total, paging) });
 }
 export async function conversation(req, res) {
