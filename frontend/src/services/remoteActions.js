@@ -1,7 +1,7 @@
 import { syncPropertyImages } from './propertyImageService.js';
 import api, { getSession } from './api.js';
 import { database } from './store.js';
-import { mutate, refreshRemote, loadProperty } from './remoteStore.js';
+import { mutate, refreshRemote, loadProperty, sendRemoteMessage } from './remoteStore.js';
 import { propertyToApi, propertyFromApi } from './adapters.js';
 export function requestBooking(user, property, form) {
   const standard = ['1 month', '3 months', '6 months', '1 year', 'Long term'];
@@ -27,7 +27,7 @@ export async function startConversation(user, property, renterId) {
   return conversation._id;
 }
 export function sendMessage(user, id, text) {
-  return mutate('post', '/messages', { conversationId: id, content: text.trim() });
+  return sendRemoteMessage({ conversationId: id, content: text.trim() });
 }
 export async function addReview(user, property, rating, comment) {
   const booking = database

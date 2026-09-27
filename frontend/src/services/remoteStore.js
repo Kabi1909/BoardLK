@@ -1,5 +1,6 @@
 import api, { getSession } from './api.js';
 import { database } from './store.js';
+import { appendDeliveredMessage } from '../utils/messages.js';
 import {
   idOf,
   userFromApi,
@@ -148,6 +149,30 @@ export async function mutate(method, path, body) {
       }),
     );
   }
+  return response.data.data;
+}
+export async function sendRemoteMessage(body) {
+  const token = getSession()?.token;
+  const response = await api.post('/messages', body);
+  if (getSession()?.token !== token) return response.data.data;
+  const message = messageFromApi(response.data.data);
+  database.update((state) => ({
+    ...state,
+    conversations: state.conversations.map((conversation) =>
+      conversation.id === body.conversationId
+        ? appendDeliveredMessage(conversation, message)
+        : conversation,
+    ),
+  }));
+  // The saved message is already visible; refreshing other data must not delay sending.
+  void refreshRemote().catch((error) => {
+    if (getSession()?.token === token)
+      window.dispatchEvent(
+        new CustomEvent('boardlk-api-error', {
+          detail: 'Message sent. Other updates could not be loaded: ' + error.message,
+        }),
+      );
+  });
   return response.data.data;
 }
 export async function markConversationRead(id) {
