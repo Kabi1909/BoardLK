@@ -14,6 +14,7 @@ import {
   RatingStars,
   StatusBadge,
   EmptyState,
+  LoadingSpinner,
 } from '../../components/common/UI';
 import ImageGallery from '../../components/property/ImageGallery';
 import { FavoriteButton, PropertyGrid } from '../../components/property/PropertyCard';
@@ -27,10 +28,37 @@ export default function PropertyDetails() {
   const navigate = useNavigate();
   const [booking, setBooking] = useState(false);
   const [shared, setShared] = useState('');
+  const [loadState, setLoadState] = useState({ key: null, status: 'loading' });
+  const [retry, setRetry] = useState(0);
+  const loadKey = id + ':' + (user?.id || 'guest');
   const p = s.properties.find((p) => p.id === id);
   useEffect(() => {
-    loadProperty(id).catch((e) => setShared(e.message));
-  }, [id, user?.id]);
+    let active = true;
+    setLoadState({ key: loadKey, status: 'loading' });
+    loadProperty(id)
+      .then(() => {
+        if (active) setLoadState({ key: loadKey, status: 'ready' });
+      })
+      .catch((error) => {
+        if (active) setLoadState({ key: loadKey, status: 'error', error });
+      });
+    return () => {
+      active = false;
+    };
+  }, [id, loadKey, retry]);
+  if (loadState.key !== loadKey || loadState.status === 'loading') return <LoadingSpinner />;
+  if (loadState.status === 'error')
+    return (
+      <EmptyState
+        title={loadState.error.status === 404 ? 'Property unavailable' : 'Unable to load property'}
+        description={loadState.error.message}
+        action={
+          <button className="btn" onClick={() => setRetry((value) => value + 1)}>
+            Retry
+          </button>
+        }
+      />
+    );
   if (!p || (p.status !== 'Published' && p.ownerId !== user?.id))
     return (
       <EmptyState
