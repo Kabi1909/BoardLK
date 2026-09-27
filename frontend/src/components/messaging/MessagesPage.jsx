@@ -16,6 +16,8 @@ export default function MessagesPage() {
   const [text, setText] = useState('');
   const [search, setSearch] = useState('');
   const [error, setError] = useState('');
+  const [sending, setSending] = useState(false);
+  const sendingRef = useRef(false);
   const end = useRef();
   const own = s.conversations.filter((c) => c.renterId === user.id || c.ownerId === user.id);
   const selected = params.get('conversation');
@@ -24,6 +26,10 @@ export default function MessagesPage() {
     (u) => u.id === (user.role === 'owner' ? conversation?.renterId : conversation?.ownerId),
   );
   const property = s.properties.find((p) => p.id === conversation?.propertyId);
+  useEffect(() => {
+    if (!selected && own.length && window.matchMedia('(min-width: 769px)').matches)
+      setParams({ conversation: own[0].id }, { replace: true });
+  }, [selected, own[0]?.id, setParams]);
   useEffect(() => {
     if (conversation && !conversation.readBy?.includes(user.id))
       markConversationRead(conversation.id).catch((e) => setError(e.message));
@@ -44,7 +50,7 @@ export default function MessagesPage() {
         new Date(b.messages.at(-1)?.createdAt || 0) - new Date(a.messages.at(-1)?.createdAt || 0),
     );
   return (
-    <>
+    <div className="messages-page">
       <div className="page-heading">
         <span className="eyebrow">A GOOD PLACE STARTS WITH A CONVERSATION</span>
         <h1>Messages</h1>
@@ -95,9 +101,18 @@ export default function MessagesPage() {
                 <div>
                   <h3>{other?.name || 'Former user'}</h3>
                   {property ? (
-                    <Link className="text-link" to={'/properties/' + property.id}>
-                      {property.title} ↗
-                    </Link>
+                    <>
+                      <small>{property.title}</small>
+                      <Link
+                        className="text-link"
+                        to={'/properties/' + property.id}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label={'View ' + property.title + ' (opens in a new tab)'}
+                      >
+                        View property ↗
+                      </Link>
+                    </>
                   ) : (
                     <small>Property no longer listed</small>
                   )}
@@ -125,12 +140,19 @@ export default function MessagesPage() {
                 className="message-compose"
                 onSubmit={async (e) => {
                   e.preventDefault();
+                  if (!text.trim() || sendingRef.current) return;
+                  sendingRef.current = true;
+                  setSending(true);
+                  const submittedText = text;
                   try {
-                    await sendMessage(user, conversation.id, text);
-                    setText('');
+                    await sendMessage(user, conversation.id, submittedText);
+                    setText((current) => (current === submittedText ? '' : current));
                     setError('');
                   } catch (e) {
                     setError(e.message);
+                  } finally {
+                    sendingRef.current = false;
+                    setSending(false);
                   }
                 }}
               >
@@ -141,8 +163,14 @@ export default function MessagesPage() {
                   onChange={(e) => setText(e.target.value)}
                   maxLength={2000}
                 />
-                <button className="btn" aria-label="Send message" disabled={!text.trim()}>
+                <button
+                  type="submit"
+                  className="btn"
+                  aria-label="Send message"
+                  disabled={sending || !text.trim()}
+                >
                   <Send size={18} />
+                  {sending ? 'Sending…' : 'Send'}
                 </button>
               </form>
             </>
@@ -159,6 +187,6 @@ export default function MessagesPage() {
           )}
         </section>
       </div>
-    </>
+    </div>
   );
 }
