@@ -3,6 +3,7 @@ import { useSearchParams, Link } from 'react-router-dom';
 import { Send, ArrowLeft, MessageCircle, Search } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useStore } from '../../hooks/useStore';
+import { useMessageDraft } from '../../hooks/useMessageDraft';
 
 import { markConversationRead } from '../../services/remoteStore';
 
@@ -13,7 +14,6 @@ export default function MessagesPage() {
   const { user } = useAuth();
   const s = useStore();
   const [params, setParams] = useSearchParams();
-  const [text, setText] = useState('');
   const [search, setSearch] = useState('');
   const [error, setError] = useState('');
   const [sending, setSending] = useState(false);
@@ -21,6 +21,10 @@ export default function MessagesPage() {
   const end = useRef();
   const own = s.conversations.filter((c) => c.renterId === user.id || c.ownerId === user.id);
   const selected = params.get('conversation');
+  const { text, setText, clearSent } = useMessageDraft(user.id, selected);
+  const selectedRef = useRef(selected);
+  selectedRef.current = selected;
+  useEffect(() => setError(''), [selected]);
   const conversation = own.find((c) => c.id === selected);
   const other = s.users.find(
     (u) => u.id === (user.role === 'owner' ? conversation?.renterId : conversation?.ownerId),
@@ -72,7 +76,6 @@ export default function MessagesPage() {
             selected={selected}
             onSelect={(id) => {
               setParams({ conversation: id });
-              setText('');
               setError('');
             }}
             users={s.users}
@@ -144,12 +147,13 @@ export default function MessagesPage() {
                   sendingRef.current = true;
                   setSending(true);
                   const submittedText = text;
+                  const submittedConversation = conversation.id;
                   try {
-                    await sendMessage(user, conversation.id, submittedText);
-                    setText((current) => (current === submittedText ? '' : current));
-                    setError('');
+                    await sendMessage(user, submittedConversation, submittedText);
+                    clearSent(submittedConversation, submittedText);
+                    if (selectedRef.current === submittedConversation) setError('');
                   } catch (e) {
-                    setError(e.message);
+                    if (selectedRef.current === submittedConversation) setError(e.message);
                   } finally {
                     sendingRef.current = false;
                     setSending(false);
