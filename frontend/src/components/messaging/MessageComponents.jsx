@@ -8,6 +8,7 @@ export function MessageBubble({ message, outgoing }) {
         {new Date(message.createdAt).toLocaleTimeString('en-GB', {
           hour: '2-digit',
           minute: '2-digit',
+          timeZone: 'Asia/Colombo',
         })}
       </time>
     </div>
@@ -19,9 +20,13 @@ export function ConversationList({ conversations, selected, onSelect, users, pro
       {conversations.map((c) => {
         const person = users.find((u) => u.id === (user.role === 'owner' ? c.renterId : c.ownerId));
         const last = c.messages.at(-1);
-        const unread = last && !c.readBy?.includes(user.id);
+        const unread =
+          Boolean(c.unreadCount) ||
+          (last?.senderId !== user.id && last && !c.readBy?.includes(user.id));
         return (
           <button
+            type="button"
+            aria-pressed={selected === c.id}
             className={'conversation ' + (selected === c.id ? 'selected' : '')}
             key={c.id}
             onClick={() => onSelect(c.id)}
