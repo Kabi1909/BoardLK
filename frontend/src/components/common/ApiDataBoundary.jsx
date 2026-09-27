@@ -16,13 +16,23 @@ export default function ApiDataBoundary({ children }) {
     window.addEventListener('boardlk-api-error', onError);
     refreshRemote()
       .then(() => {
-        if (active) setLoaded(key);
+        if (active) {
+          setLoaded(key);
+          setError('');
+        }
       })
       .catch((e) => {
         if (active) setError(e.message);
       });
     const timer = setInterval(() => {
-      if (active) refreshRemote().catch((e) => setError(e.message));
+      if (active)
+        refreshRemote()
+          .then(() => {
+            if (active) setError('');
+          })
+          .catch((e) => {
+            if (active) setError(e.message);
+          });
     }, 30000);
     return () => {
       active = false;
@@ -31,7 +41,7 @@ export default function ApiDataBoundary({ children }) {
     };
   }, [key, retry]);
 
-  if (error)
+  if (error && loaded !== key)
     return (
       <EmptyState
         title="Unable to load BoardLK"
@@ -44,5 +54,28 @@ export default function ApiDataBoundary({ children }) {
       />
     );
   if (loaded !== key) return <LoadingSpinner />;
-  return children;
+  return (
+    <>
+      {error && (
+        <div
+          className="error-box"
+          role="alert"
+          style={{ position: 'fixed', top: 12, right: 12, zIndex: 200, maxWidth: 360 }}
+        >
+          <p>{error}</p>
+          <button className="btn secondary" onClick={() => setRetry((n) => n + 1)}>
+            Retry updates
+          </button>
+          <button
+            className="icon-button"
+            aria-label="Dismiss update error"
+            onClick={() => setError('')}
+          >
+            ×
+          </button>
+        </div>
+      )}
+      {children}
+    </>
+  );
 }

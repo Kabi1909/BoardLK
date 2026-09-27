@@ -176,11 +176,20 @@ export async function sendRemoteMessage(body) {
   return response.data.data;
 }
 export async function markConversationRead(id) {
+  const token = getSession()?.token;
+  const readThrough = database
+    .get()
+    .conversations.find((c) => c.id === id)
+    ?.messages.at(-1)?.id;
   await api.patch('/conversations/' + id + '/read');
   const user = getSession()?.user;
-  if (!user) return;
+  if (!user || getSession()?.token !== token) return;
   database.update((s) => ({
     ...s,
-    conversations: s.conversations.map((c) => (c.id === id ? { ...c, readBy: [user.id] } : c)),
+    conversations: s.conversations.map((c) =>
+      c.id === id && c.messages.at(-1)?.id === readThrough
+        ? { ...c, readBy: [user.id], unreadCount: 0 }
+        : c,
+    ),
   }));
 }
