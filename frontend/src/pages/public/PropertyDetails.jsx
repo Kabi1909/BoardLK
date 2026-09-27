@@ -44,6 +44,7 @@ export default function PropertyDetails() {
       />
     );
   const owner = s.users.find((u) => u.id === p.ownerId);
+  const isOwnProperty = user?.role === 'owner' && p.ownerId === user.id;
   const reviews = s.reviews.filter((r) => r.propertyId === id);
   const authorize = (fn) => {
     if (!user) navigate('/login', { state: { from: '/properties/' + id } });
@@ -80,7 +81,7 @@ export default function PropertyDetails() {
           </p>
         </div>
         <div className="detail-actions">
-          <FavoriteButton propertyId={id} />
+          {user?.role !== 'owner' && <FavoriteButton propertyId={id} />}
           <button
             className="icon-button"
             aria-label="Share property"
@@ -182,7 +183,7 @@ export default function PropertyDetails() {
         </div>
         <aside>
           <div className="booking-card panel">
-            <span className="eyebrow">YOUR NEXT HOME</span>
+            <span className="eyebrow">{isOwnProperty ? 'YOUR PROPERTY' : 'YOUR NEXT HOME'}</span>
             <div className="detail-price">
               <strong>{money(p.rent)}</strong>
               <span> / month</span>
@@ -197,34 +198,55 @@ export default function PropertyDetails() {
             </div>
             <div className="price-row">
               <span>Advance payment</span>
-              <b>{p.advance} month(s)</b>
+              <b>{money(p.advance)}</b>
             </div>
             <div className="divider" />
-            <button
-              className="btn full-width"
-              disabled={
-                !p.spaces ||
-                p.status !== 'Published' ||
-                p.availabilityStatus === 'Temporarily Unavailable'
-              }
-              onClick={() => authorize(() => setBooking(true))}
-            >
-              Request booking <ArrowRight size={16} />
-            </button>
-            <button
-              className="btn secondary full-width"
-              onClick={() =>
-                authorize(() =>
-                  Promise.resolve(startConversation(user, p)).then((conversation) =>
-                    navigate('/renter/messages?conversation=' + conversation),
-                  ),
-                )
-              }
-            >
-              <MessageCircle size={16} />
-              Contact owner
-            </button>
-            <p className="fine-print">You won’t be charged when sending a request.</p>
+            {user?.role === 'owner' ? (
+              <>
+                {isOwnProperty && (
+                  <Link className="btn full-width" to={'/owner/properties/' + id + '/edit'}>
+                    Edit property
+                  </Link>
+                )}
+                <Link className="btn secondary full-width" to="/owner/messages">
+                  <MessageCircle size={16} />
+                  Back to messages
+                </Link>
+                {isOwnProperty && (
+                  <Link className="btn secondary full-width" to="/owner/bookings">
+                    View booking requests
+                  </Link>
+                )}
+              </>
+            ) : (
+              <>
+                <button
+                  className="btn full-width"
+                  disabled={
+                    !p.spaces ||
+                    p.status !== 'Published' ||
+                    p.availabilityStatus === 'Temporarily Unavailable'
+                  }
+                  onClick={() => authorize(() => setBooking(true))}
+                >
+                  Request booking <ArrowRight size={16} />
+                </button>
+                <button
+                  className="btn secondary full-width"
+                  onClick={() =>
+                    authorize(() =>
+                      Promise.resolve(startConversation(user, p)).then((conversation) =>
+                        navigate('/renter/messages?conversation=' + conversation),
+                      ),
+                    )
+                  }
+                >
+                  <MessageCircle size={16} />
+                  Contact owner
+                </button>
+                <p className="fine-print">You won’t be charged when sending a request.</p>
+              </>
+            )}
             <div className="divider" />
             <div className="person">
               <Avatar user={owner} />
