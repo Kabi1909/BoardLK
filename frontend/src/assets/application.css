@@ -1910,3 +1910,84 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* Keep the inbox composer inside the dashboard viewport at every screen size. */
+.messages-workspace {
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.messages-workspace .dashboard-topbar {
+  flex-shrink: 0;
+}
+.messages-workspace .dashboard-content {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  padding-top: 24px;
+  padding-bottom: 24px;
+}
+.messages-workspace .dashboard-footer {
+  display: none;
+}
+.messages-page {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+}
+.messages-page .page-heading {
+  flex-shrink: 0;
+  margin-bottom: 20px;
+}
+.messages-page .messaging-layout {
+  flex: 1;
+  height: auto;
+  min-height: 0;
+}
+.messages-page .chat-panel {
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+.messages-page .chat-messages {
+  min-height: 0;
+  overscroll-behavior: contain;
+}
+.messages-page .chat-header,
+.messages-page .message-compose {
+  flex-shrink: 0;
+}
+.messages-page .chat-header small {
+  display: block;
+}
+.messages-page .message-compose {
+  background: white;
+  align-items: center;
+}
+.messages-page .message-compose input {
+  flex: 1;
+  min-width: 0;
+}
+.messages-page .message-compose .btn {
+  flex-shrink: 0;
+}
+@media (max-width: 768px) {
+  .messages-workspace .dashboard-content {
+    padding: 12px;
+  }
+  .messages-page .page-heading {
+    margin-bottom: 12px;
+  }
+  .messages-page .page-heading .eyebrow {
+    display: none;
+  }
+  .messages-page .chat-header {
+    padding: 10px 12px;
+  }
+  .messages-page .message-compose {
+    padding-bottom: max(12px, env(safe-area-inset-bottom));
+  }
+}
