@@ -2,7 +2,7 @@ export const cities = {
   Ampara: ['Ampara', 'Kalmunai'],
   Anuradhapura: ['Anuradhapura', 'Kekirawa'],
   Badulla: ['Badulla', 'Bandarawela'],
-  Batticaloa: ['Batticaloa', 'Kattankudy'],
+  Batticaloa: ['Batticaloa', 'Kattankudy', 'Eravur', 'Chenkalady'],
   Colombo: ['Colombo', 'Nugegoda', 'Maharagama', 'Dehiwala', 'Moratuwa'],
   Galle: ['Galle', 'Hikkaduwa'],
   Gampaha: ['Gampaha', 'Negombo', 'Kelaniya'],
@@ -23,7 +23,7 @@ export const cities = {
   Puttalam: ['Puttalam', 'Chilaw'],
   Ratnapura: ['Ratnapura', 'Balangoda'],
   Trincomalee: ['Trincomalee', 'Kinniya'],
-  Vavuniya: ['Vavuniya', 'Cheddikulam'],
+  Vavuniya: ['Vavuniya', 'Cheddikulam', 'Poovarankulam', 'Nelukkulam'],
 };
 export const districts = Object.keys(cities).sort();
 export const propertyTypes = [

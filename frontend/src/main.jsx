@@ -11,22 +11,27 @@ import { ScrollToTop } from './layouts/PublicLayout';
 import './index.css';
 import './assets/marketplace.css';
 import './assets/application.css';
+import './assets/motion.css';
+import './assets/theme.css';
+import { ThemeProvider } from './context/ThemeContext';
 ReactDOM.createRoot(document.getElementById('root')).render(
   <ErrorBoundary>
-    <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-      <AuthProvider>
-        <FavoritesProvider>
-          <NotificationProvider>
-            <a className="skip-link" href="#main-content">
-              Skip to content
-            </a>
-            <ScrollToTop />
-            <ApiDataBoundary>
-              <App />
-            </ApiDataBoundary>
-          </NotificationProvider>
-        </FavoritesProvider>
-      </AuthProvider>
-    </BrowserRouter>
+    <ThemeProvider>
+      <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+        <AuthProvider>
+          <FavoritesProvider>
+            <NotificationProvider>
+              <a className="skip-link" href="#main-content">
+                Skip to content
+              </a>
+              <ScrollToTop />
+              <ApiDataBoundary>
+                <App />
+              </ApiDataBoundary>
+            </NotificationProvider>
+          </FavoritesProvider>
+        </AuthProvider>
+      </BrowserRouter>
+    </ThemeProvider>
   </ErrorBoundary>,
 );

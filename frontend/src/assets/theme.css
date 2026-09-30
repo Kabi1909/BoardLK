@@ -1,0 +1,397 @@
+/* Shared surfaces retain the existing layout and all application behavior. */
+:root {
+  --page: #f8faf7;
+  --surface: #fff;
+  --surface-soft: #f0f5ed;
+  --ink: #203e32;
+  --muted: #62766b;
+  --line: #dfe8de;
+  --accent: #176b52;
+  --card-shadow: 0 10px 30px rgb(26 65 45 / 6%);
+}
+:root[data-theme='dark'] {
+  --page: #0d1916;
+  --surface: #172822;
+  --surface-soft: #20372d;
+  --ink: #e5f1e9;
+  --muted: #adbfb4;
+  --line: #344c40;
+  --accent: #8cdcb0;
+  --card-shadow: 0 10px 30px rgb(0 0 0 / 18%);
+  background: var(--page);
+  color: var(--ink);
+}
+body {
+  background: var(--page);
+  color: var(--ink);
+}
+.theme-toggle {
+  flex-shrink: 0;
+  min-width: 38px;
+  min-height: 38px;
+}
+.theme-toggle svg {
+  color: var(--accent);
+}
+.auth-form-wrap {
+  min-width: 0;
+}
+.card,
+.panel,
+.booking-row,
+.owner-property,
+.wizard-body {
+  box-shadow: var(--card-shadow);
+  border-radius: 16px;
+}
+.property-content {
+  background: var(--surface);
+}
+.property-bottom {
+  border-color: var(--line);
+}
+.dashboard-content .panel {
+  border-top: 2px solid #c6dec9;
+}
+.navbar,
+.dashboard-topbar {
+  box-shadow: 0 3px 22px rgb(26 65 45 / 4%);
+}
+.theme-toggle:focus-visible {
+  outline: 3px solid #daab4e;
+  outline-offset: 3px;
+}
+html[data-theme='dark'] footer,
+html[data-theme='dark'] .cta {
+  background: var(--surface-soft);
+  border-color: var(--line);
+}
+html[data-theme='dark'] .footer-grid a:not(.logo),
+html[data-theme='dark'] .footer-made,
+html[data-theme='dark'] .footer-bottom {
+  color: var(--muted);
+}
+
+/* A forest palette, rather than filtering photographs or map tiles. */
+html[data-theme='dark']
+  :is(
+    .navbar,
+    .dashboard-sidebar,
+    .dashboard-topbar,
+    .mobile-menu,
+    .notification-dropdown,
+    .account-links,
+    .panel,
+    .card,
+    .filter-sidebar,
+    .modal,
+    .auth-form-wrap,
+    .map-results,
+    .wizard-body,
+    .booking-row,
+    .owner-property,
+    .messaging-layout,
+    .chat-panel,
+    .message-compose,
+    .search-bar,
+    .floating-card,
+    .hero-tag,
+    .stat-card,
+    .review-card
+  ) {
+  background: var(--surface);
+  color: var(--ink);
+  border-color: var(--line);
+  box-shadow: var(--card-shadow);
+}
+html[data-theme='dark'] :is(.dashboard-layout, .hero, .auth-page) {
+  background: radial-gradient(ellipse at 90% 0, #213d2d, transparent 60%), var(--page);
+}
+html[data-theme='dark']
+  :is(
+    .muted-bg,
+    .how-section,
+    .trust-strip,
+    .footer,
+    .chat-messages,
+    .profile-security,
+    .owner-reply,
+    .sidebar-promo,
+    .image-upload,
+    .wizard-intro,
+    .wizard-actions,
+    .map-switch,
+    .stat-icon,
+    .step-icon
+  ) {
+  background: var(--surface-soft);
+  color: var(--ink);
+  border-color: var(--line);
+}
+html[data-theme='dark']
+  :is(
+    h1,
+    h2,
+    h3,
+    h4,
+    strong,
+    label,
+    .person strong,
+    .rating strong,
+    .rent,
+    .detail-price strong,
+    .property-bottom strong,
+    .dashboard-content .page-heading h1,
+    .hero h1,
+    .logo,
+    .field label,
+    .chat-header h3
+  ) {
+  color: var(--ink);
+}
+html[data-theme='dark']
+  :is(
+    p,
+    small,
+    .fine-print,
+    .property-meta,
+    .location-line,
+    .facility-line,
+    .property-facts small,
+    .price-row,
+    .breadcrumbs,
+    .sidebar-caption,
+    .sidebar-user small,
+    .dashboard-footer,
+    .stat-card > div > span,
+    .conversation p,
+    .conversation small,
+    .message-bubble time,
+    .footer a,
+    .footer p,
+    .auth-tabs a,
+    .password-toggle,
+    .booking-facts,
+    .filter-label,
+    .chat-start,
+    .logo small,
+    .hero-proof small,
+    .popular-search,
+    .popular-search a,
+    .trust-strip > .container
+  ) {
+  color: var(--muted);
+}
+html[data-theme='dark']
+  :is(
+    .text-link,
+    .eyebrow,
+    .hero em,
+    .logo-lk,
+    .sidebar-promo a,
+    .auth-back,
+    .desktop-nav a.active,
+    .auth-tabs a.active,
+    .tabs button.active,
+    .wizard-steps button.active
+  ) {
+  color: var(--accent);
+}
+html[data-theme='dark'] :is(input, select, textarea) {
+  background: #102019;
+  color: var(--ink);
+  border-color: #496454;
+  accent-color: #8cdcb0;
+}
+html[data-theme='dark'] :is(input, textarea)::placeholder {
+  color: #a0b4a7;
+  opacity: 1;
+}
+html[data-theme='dark'] :is(input, select, textarea):focus {
+  outline-color: var(--accent);
+}
+html[data-theme='dark'] .search-bar :is(input, select) {
+  background: transparent;
+}
+html[data-theme='dark'] .btn {
+  background: #8cdcb0;
+  color: #0d2a1a;
+  border-color: #8cdcb0;
+}
+html[data-theme='dark'] .btn:hover {
+  background: #b1eacb;
+  border-color: #b1eacb;
+}
+html[data-theme='dark']
+  :is(
+    .btn.secondary,
+    .icon-button,
+    .pagination button,
+    .upload-label,
+    .map-switch button,
+    .cover-select,
+    .filter-chips button
+  ) {
+  background: var(--surface-soft);
+  color: var(--ink);
+  border-color: var(--line);
+}
+html[data-theme='dark'] :is(.icon-button:hover, .btn.secondary:hover) {
+  background: #304f3f;
+}
+html[data-theme='dark'] .btn.danger {
+  background: #943c41;
+  color: #fff;
+  border-color: #bb5b61;
+}
+html[data-theme='dark'] :is(.error, .delete-button) {
+  color: #ffb2b8;
+}
+html[data-theme='dark'] .error-box {
+  background: #412328;
+  color: #ffd0d3;
+}
+html[data-theme='dark'] .error-box p {
+  color: inherit;
+}
+html[data-theme='dark'] .success {
+  background: #214333;
+  color: #b5efc9;
+}
+html[data-theme='dark'] :is(.badge.green, .avatar, .hero-pill) {
+  background: #234633;
+  color: #b2efc9;
+}
+html[data-theme='dark'] .badge.amber {
+  background: #463922;
+  color: #f4d48e;
+}
+html[data-theme='dark'] .badge.red {
+  background: #49282f;
+  color: #ffb9c0;
+}
+html[data-theme='dark'] .badge strong {
+  color: inherit;
+}
+html[data-theme='dark'] :is(.desktop-nav a, .dashboard-sidebar nav > a, .mobile-menu a) {
+  color: var(--muted);
+}
+html[data-theme='dark']
+  :is(
+    .dashboard-sidebar nav > a.active,
+    .dashboard-sidebar nav > a:hover,
+    .mobile-menu a.active,
+    .account-links a:hover,
+    .account-links button:hover,
+    .conversation.selected,
+    .conversation:hover,
+    .notification-item:hover,
+    .notification-row.unread
+  ) {
+  background: #264535;
+  color: #b8f1cf;
+  border-color: #477558;
+  box-shadow: inset 0 0 0 1px #3a5c47;
+}
+html[data-theme='dark'] .desktop-nav a:is(.active, :hover) {
+  color: var(--accent);
+}
+html[data-theme='dark'] .desktop-nav a.active::after {
+  background: var(--accent);
+}
+html[data-theme='dark'] .message-bubble {
+  background: #273e32;
+  color: var(--ink);
+}
+html[data-theme='dark'] .message-bubble p {
+  color: var(--ink);
+}
+html[data-theme='dark'] .message-bubble.outgoing {
+  background: #276247;
+}
+html[data-theme='dark'] .message-bubble.outgoing :is(p, time) {
+  color: #ecfff3;
+}
+html[data-theme='dark'] :is(.divider, .wizard-progress) {
+  background: var(--line);
+}
+html[data-theme='dark']
+  :is(
+    .detail-section,
+    .section-heading,
+    .property-bottom,
+    .price-row,
+    .review-card,
+    .sidebar-user,
+    .dashboard-footer,
+    .inbox,
+    .chat-header,
+    .message-compose,
+    .notification-row,
+    .compact-row,
+    .auth-tabs,
+    .tabs,
+    .profile-header,
+    .search-bar > div,
+    .footer-bottom
+  ) {
+  border-color: var(--line);
+}
+html[data-theme='dark'] .skeleton :is(div, p) {
+  background: var(--surface-soft);
+}
+html[data-theme='dark'] .modal-backdrop {
+  background: rgb(0 8 4 / 78%);
+}
+html[data-theme='dark'] :is(.leaflet-popup-content-wrapper, .leaflet-popup-tip) {
+  background: var(--surface);
+  color: var(--ink);
+}
+html[data-theme='dark'] .recharts-text {
+  fill: var(--muted);
+}
+html[data-theme='dark'] .recharts-cartesian-grid line {
+  stroke: var(--line);
+}
+html[data-theme='dark'] .recharts-default-tooltip {
+  background: var(--surface) !important;
+  border-color: var(--line) !important;
+  color: var(--ink) !important;
+}
+html[data-theme='dark'] .recharts-tooltip-label {
+  color: var(--ink) !important;
+}
+html[data-theme='dark']
+  :is(.location-card, .auth-story, .cta-banner, .hero-photo-label)
+  :is(h1, h2, h3, p, small, strong) {
+  color: #fff;
+}
+html[data-theme='dark'] .favorite-button {
+  background: #172822;
+  color: #e5f1e9;
+}
+html[data-theme='dark'] .favorite-button.saved {
+  color: #ffb9c0;
+}
+@media (max-width: 420px) {
+  .nav-actions {
+    gap: 5px;
+  }
+  .nav-actions > .btn {
+    padding: 10px;
+    font-size: 10px;
+  }
+  .nav-actions > .btn svg {
+    display: none;
+  }
+  .nav-actions .icon-button {
+    padding: 8px;
+    min-width: 36px;
+  }
+  .navbar .logo {
+    font-size: 20px;
+  }
+  .dashboard-topbar > div {
+    gap: 10px;
+  }
+}

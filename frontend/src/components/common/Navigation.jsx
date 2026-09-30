@@ -1,4 +1,5 @@
 import AccountMenu from './AccountMenu';
+import ThemeToggle from './ThemeToggle';
 import { useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { House, Menu, X, ArrowUpRight, Bell, LogOut } from 'lucide-react';
@@ -143,6 +144,7 @@ export function Navbar() {
           {user && <NavLink to={'/' + user.role + '/dashboard'}>Dashboard</NavLink>}
         </nav>
         <div className="nav-actions">
+          <ThemeToggle />
           {user ? (
             <>
               <NotificationDropdown />

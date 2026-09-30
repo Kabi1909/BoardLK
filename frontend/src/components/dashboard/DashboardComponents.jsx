@@ -17,6 +17,7 @@ import {
 import { useAuth } from '../../context/AuthContext';
 import { Logo, NotificationDropdown } from '../common/Navigation';
 import { Avatar } from '../common/UI';
+import ThemeToggle from '../common/ThemeToggle';
 export function DashboardSidebar({ open, onClose }) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
@@ -107,6 +108,7 @@ export function DashboardTopbar({ onMenu }) {
           <Search size={15} />
           Explore boarding
         </Link>
+        <ThemeToggle />
         <NotificationDropdown />
         <Avatar user={user} />
       </div>
